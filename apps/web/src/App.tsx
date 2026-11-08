@@ -14,7 +14,7 @@ import {
   Reveal3D,
   BentoShowcase
 } from './components';
-import { WebsiteProduct, CategoryId } from '@sitevault/shared';
+import { WebsiteProduct, CategoryId, INITIAL_PRODUCTS } from '@sitevault/shared';
 import { 
   SearchX, 
   ChevronLeft, 
@@ -39,8 +39,8 @@ export const App: React.FC = () => {
   // Page Routing State
   const [currentPage, setCurrentPage] = useState<PageId>(getPageFromHash);
 
-  // Products & Filter State
-  const [products, setProducts] = useState<WebsiteProduct[]>([]);
+  // Products & Filter State (Default to INITIAL_PRODUCTS so no flicker / empty state)
+  const [products, setProducts] = useState<WebsiteProduct[]>(INITIAL_PRODUCTS);
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'popular' | 'price-asc' | 'price-desc' | 'newest'>('popular');
