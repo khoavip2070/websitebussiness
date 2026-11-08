@@ -135,10 +135,16 @@ export const App: React.FC = () => {
     return counts;
   }, [products]);
 
-  // Spotlight product (Top item, e.g. Nova SaaS or first item)
+  // Spotlight product (Interactive HeroInspo Selection)
+  const [selectedSpotlightId, setSelectedSpotlightId] = useState<string | null>(null);
+
   const spotlightProduct = useMemo(() => {
+    if (selectedSpotlightId) {
+      const found = products.find((p) => p.id === selectedSpotlightId);
+      if (found) return found;
+    }
     return products.find((p) => p.slug === 'nova-saas-landing') || products[0];
-  }, [products]);
+  }, [products, selectedSpotlightId]);
 
   // Extract all tech stack options
   const allTechOptions = useMemo(() => {
@@ -164,6 +170,7 @@ export const App: React.FC = () => {
       <Navbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
       />
 
       {/* 2. Hero Section */}
@@ -179,10 +186,12 @@ export const App: React.FC = () => {
 
       {/* 3. Main Content Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
-        {/* Spotlight Showcase (HeroInspo Featured Website) */}
+        {/* Spotlight Showcase (HeroInspo Featured Website with iPhone & Desktop view) */}
         {!searchQuery && selectedCategory === 'all' && spotlightProduct && (
           <SpotlightHero
             product={spotlightProduct}
+            allProducts={products}
+            onSelectProduct={(p) => setSelectedSpotlightId(p.id)}
             onPreview={(p) => {
               recordView(p.id);
               setPreviewProduct(p);

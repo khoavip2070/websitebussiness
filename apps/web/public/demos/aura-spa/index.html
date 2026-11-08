@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Spa & Clinic - Chăm Sóc Sắc Đẹp Chuẩn Y Khoa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-serif-luxury { font-family: 'Playfair Display', serif; }
+  </style>
+</head>
+<body class="bg-[#FAF8F5] text-[#2C2825] antialiased">
+  <!-- Top bar -->
+  <header class="sticky top-0 z-40 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#EBE5DF]">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-[#C5A880] text-white flex items-center justify-center font-serif-luxury text-lg font-bold">A</span>
+        <span class="font-serif-luxury text-xl font-bold tracking-wider text-[#2C2825]">AURA SPA</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-[#6B635B]">
+        <a href="#services" class="hover:text-[#C5A880] transition-colors">Dịch vụ</a>
+        <a href="#about" class="hover:text-[#C5A880] transition-colors">Về Aura</a>
+        <a href="#pricing" class="hover:text-[#C5A880] transition-colors">Bảng giá</a>
+        <a href="#contact" class="hover:text-[#C5A880] transition-colors">Liên hệ</a>
+      </nav>
+      <button onclick="document.getElementById('booking-modal').classList.remove('hidden')" class="px-5 py-2 rounded-full bg-[#2C2825] text-[#FAF8F5] text-xs font-semibold uppercase tracking-wider hover:bg-[#C5A880] transition-all duration-300 shadow-sm">
+        Đặt lịch hẹn
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="py-16 md:py-24 px-4 max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F2ECE4] text-[#8C7355] text-xs font-semibold mb-6">
+        <span>✨ Chuẩn Y Khoa & Thư Giãn Tinh Thần</span>
+      </div>
+      <h1 class="font-serif-luxury text-4xl sm:text-5xl md:text-6xl font-semibold leading-[1.15] text-[#2C2825] mb-6">
+        Nâng niu vẻ đẹp <br><span class="italic font-normal text-[#C5A880]">tự nhiên thuần khiết</span>
+      </h1>
+      <p class="text-[#6B635B] text-base leading-relaxed mb-8 max-w-lg">
+        Không gian nghỉ dưỡng tĩnh tại giữa lòng phố thị. Trải nghiệm các liệu pháp chăm sóc da chuyên sâu, massage phục hồi năng lượng từ các chuyên gia hàng đầu.
+      </p>
+      <div class="flex flex-wrap gap-4 items-center">
+        <button onclick="document.getElementById('booking-modal').classList.remove('hidden')" class="px-7 py-3.5 rounded-full bg-[#C5A880] text-white font-medium text-sm hover:bg-[#b09268] transition-colors shadow-md">
+          Nhận tư vấn miễn phí
+        </button>
+        <a href="#services" class="px-7 py-3.5 rounded-full border border-[#D5CCC1] text-[#2C2825] font-medium text-sm hover:bg-white transition-colors">
+          Xem bảng liệu trình
+        </a>
+      </div>
+      <div class="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-[#EAE3DA]">
+        <div>
+          <div class="font-serif-luxury text-2xl font-bold text-[#2C2825]">12,000+</div>
+          <div class="text-xs text-[#8C847B] mt-1">Khách hàng tin chọn</div>
+        </div>
+        <div>
+          <div class="font-serif-luxury text-2xl font-bold text-[#2C2825]">100%</div>
+          <div class="text-xs text-[#8C847B] mt-1">Dược mỹ phẩm hữu cơ</div>
+        </div>
+        <div>
+          <div class="font-serif-luxury text-2xl font-bold text-[#2C2825]">4.9 / 5</div>
+          <div class="text-xs text-[#8C847B] mt-1">Đánh giá thực tế</div>
+        </div>
+      </div>
+    </div>
+    <div class="relative">
+      <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+        <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80" alt="Aura Spa Space" class="w-full h-full object-cover">
+      </div>
+      <div class="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-[#F0EBE5] max-w-xs hidden sm:block">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#F5EDE2] flex items-center justify-center text-[#C5A880] text-xl">🌿</div>
+          <div>
+            <div class="text-xs font-bold text-[#2C2825]">Liệu pháp Tinh dầu Trầm</div>
+            <div class="text-[11px] text-[#8C847B]">Giảm stress & cải thiện giấc ngủ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Grid -->
+  <section id="services" class="py-20 bg-white border-y border-[#EBE5DF]">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="text-xs font-semibold tracking-wider uppercase text-[#C5A880]">Menu Dịch Vụ</span>
+        <h2 class="font-serif-luxury text-3xl sm:text-4xl font-semibold text-[#2C2825] mt-2 mb-4">Các liệu trình được yêu thích nhất</h2>
+        <p class="text-[#6B635B] text-sm">Mỗi dịch vụ được thiết kế cá nhân hóa phù hợp với từng tình trạng làn da và thể trạng.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Card 1 -->
+        <div class="rounded-2xl border border-[#EAE3DA] overflow-hidden hover:shadow-xl transition-all duration-300 bg-[#FAF8F5]">
+          <div class="h-52 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80" alt="Chăm sóc da" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-[#C5A880] uppercase">Chuyên sâu</span>
+              <span class="text-sm font-bold text-[#2C2825]">750.000đ / buổi</span>
+            </div>
+            <h3 class="font-serif-luxury text-xl font-bold text-[#2C2825] mb-2">Hydra Glow Phục Hồi</h3>
+            <p class="text-xs text-[#6B635B] leading-relaxed mb-6">Cấp ẩm tầng sâu bằng công nghệ điện di ion lạnh, phục hồi hàng rào ẩm và tái sinh làn da căng bóng.</p>
+            <button onclick="document.getElementById('booking-modal').classList.remove('hidden')" class="w-full py-2.5 rounded-lg border border-[#C5A880] text-[#C5A880] text-xs font-semibold hover:bg-[#C5A880] hover:text-white transition-colors">
+              Đặt lịch trải nghiệm
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="rounded-2xl border border-[#EAE3DA] overflow-hidden hover:shadow-xl transition-all duration-300 bg-[#FAF8F5]">
+          <div class="h-52 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=600&q=80" alt="Massage đá nóng" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-[#C5A880] uppercase">Thư giãn</span>
+              <span class="text-sm font-bold text-[#2C2825]">620.000đ / 75p</span>
+            </div>
+            <h3 class="font-serif-luxury text-xl font-bold text-[#2C2825] mb-2">Massage Đá Nóng Núi Lửa</h3>
+            <p class="text-xs text-[#6B635B] leading-relaxed mb-6">Xua tan mệt mỏi cổ vai gáy, kích thích tuần hoàn máu với đá bazan tự nhiên ủ thảo dược cổ truyền.</p>
+            <button onclick="document.getElementById('booking-modal').classList.remove('hidden')" class="w-full py-2.5 rounded-lg border border-[#C5A880] text-[#C5A880] text-xs font-semibold hover:bg-[#C5A880] hover:text-white transition-colors">
+              Đặt lịch trải nghiệm
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="rounded-2xl border border-[#EAE3DA] overflow-hidden hover:shadow-xl transition-all duration-300 bg-[#FAF8F5]">
+          <div class="h-52 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=600&q=80" alt="Gội đầu dưỡng sinh" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-[#C5A880] uppercase">Dưỡng sinh</span>
+              <span class="text-sm font-bold text-[#2C2825]">380.000đ / 60p</span>
+            </div>
+            <h3 class="font-serif-luxury text-xl font-bold text-[#2C2825] mb-2">Gội Đầu Dưỡng Sinh Bồ Kết</h3>
+            <p class="text-xs text-[#6B635B] leading-relaxed mb-6">Nấu từ 15 loại thảo mộc tươi, kết hợp bấm huyệt đạo đả thông kinh lạc, giúp thư thái tinh thần tuyệt đối.</p>
+            <button onclick="document.getElementById('booking-modal').classList.remove('hidden')" class="w-full py-2.5 rounded-lg border border-[#C5A880] text-[#C5A880] text-xs font-semibold hover:bg-[#C5A880] hover:text-white transition-colors">
+              Đặt lịch trải nghiệm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking Modal -->
+  <div id="booking-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
+      <button onclick="document.getElementById('booking-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+      <div class="text-center mb-6">
+        <h3 class="font-serif-luxury text-2xl font-bold text-[#2C2825]">Đặt Lịch Tư Vấn</h3>
+        <p class="text-xs text-gray-500 mt-1">Aura Spa sẽ liên hệ xác nhận trong vòng 10 phút</p>
+      </div>
+      <form onsubmit="event.preventDefault(); alert('Đặt lịch thành công! Nhân viên chăm sóc khách hàng của Aura Spa sẽ gọi xác nhận trong 10 phút.'); document.getElementById('booking-modal').classList.add('hidden');" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Họ và tên của bạn</label>
+          <input type="text" required placeholder="Ví dụ: Nguyễn Phương Linh" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#C5A880]">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Số điện thoại</label>
+          <input type="tel" required placeholder="090 123 4567" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#C5A880]">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Dịch vụ quan tâm</label>
+          <select class="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#C5A880]">
+            <option>Hydra Glow Phục Hồi</option>
+            <option>Massage Đá Nóng Núi Lửa</option>
+            <option>Gội Đầu Dưỡng Sinh Bồ Kết</option>
+            <option>Tư vấn chuyên sâu da liễu</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-[#C5A880] text-white font-semibold text-sm hover:bg-[#b09268] transition-colors shadow">
+          Xác nhận đặt lịch
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[#2C2825] text-white/80 py-12 px-4 border-t border-[#3A3531]">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-[#C5A880] text-white flex items-center justify-center font-serif-luxury text-lg font-bold">A</span>
+        <span class="font-serif-luxury text-xl font-bold text-white tracking-wider">AURA SPA & CLINIC</span>
+      </div>
+      <p class="text-xs text-white/50">© 2026 Aura Spa Template. Mã nguồn chuẩn SEO & Tối ưu chuyển đổi.</p>
+    </div>
+  </footer>
+</body>
+</html>

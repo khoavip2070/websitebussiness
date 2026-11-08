@@ -1,0 +1,12 @@
+{
+  "name": "artisan-brew-coffee-template",
+  "version": "1.0.0",
+  "description": "Website quán cafe, tiệm bánh và nhà hàng với menu điện tử",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["coffee", "restaurant", "menu-qr", "website-template"],
+  "author": "KWeb",
+  "license": "Commercial"
+}
