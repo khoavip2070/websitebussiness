@@ -70,7 +70,7 @@ export const LicenseLookupModal: React.FC<LicenseLookupModalProps> = ({
                   value={licenseKey}
                   onChange={(e) => setLicenseKey(e.target.value)}
                   placeholder="Ví dụ: AURA-89X2-LK99-VN26"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-mono uppercase focus:outline-none focus:border-blue-600"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 font-mono font-bold uppercase text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all"
                 />
               </div>
             </div>
