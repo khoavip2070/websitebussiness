@@ -68,6 +68,9 @@ export interface Order {
   licenseKey: string;
   createdAt: string;
   completedAt?: string;
+  refundedAt?: string;
+  refundReason?: string;
+  refundTransactionId?: string;
 }
 
 export interface License {

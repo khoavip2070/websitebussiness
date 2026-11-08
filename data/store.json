@@ -13,11 +13,16 @@
       "slug": "aura-luxury-spa",
       "title": "Aura Spa & Clinic - Website Đặt Lịch & Chăm Sóc Sắc Đẹp",
       "tagline": "Giao diện cao cấp chuẩn sang trọng, tích hợp đặt lịch hẹn trực tiếp qua Zalo/Email",
-      "description": "Mẫu website hoàn chỉnh dành riêng cho Spa, Thẩm mỹ viện, Phòng khám thẩm mỹ hoặc Salon tóc cao cấp. Tối ưu trải nghiệm mobile, bảng giá dịch vụ có hiệu ứng accordion, thư viện feedback khách hàng trước/sau.",
+      "description": "Mẫu website hoàn chỉnh dành riêng cho Spa, Thẩm mỹ viện, Phòng khám thẩm mỹ hoặc Salon tóc cao cấp. Tối ưu trải nghiệm mobile, bảng giá dịch vụ có hiệu ứng accordion, thư viện feedback khách hàng.",
       "price": 690000,
       "originalPrice": 1500000,
       "category": "services",
-      "techStack": ["Next.js 14", "Tailwind CSS", "TypeScript", "Lucide Icons"],
+      "techStack": [
+        "HTML5",
+        "Tailwind CSS",
+        "JavaScript",
+        "Google Fonts"
+      ],
       "thumbnail": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
       "gallery": [
         "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
@@ -33,15 +38,28 @@
         "Giao diện Luxury tone màu be & vàng đồng chuẩn quốc tế",
         "Form đặt lịch tư vấn gửi ngay vào Google Sheets hoặc Email",
         "Bảng so sánh dịch vụ & bảng giá minh bạch",
-        "Tối ưu chuẩn SEO 100/100, chuẩn tốc độ di động Google Core Web Vitals"
+        "Tối ưu chuẩn SEO 100/100, chuẩn tốc độ di động Google Core Web Vitals",
+        "Kèm hướng dẫn thay đổi logo, hình ảnh, văn bản chỉ trong 15 phút"
       ],
       "pagesCount": 5,
-      "lighthouse": { "performance": 98, "accessibility": 100, "bestPractices": 96, "seo": 100 },
+      "lighthouse": {
+        "performance": 98,
+        "accessibility": 100,
+        "bestPractices": 96,
+        "seo": 100
+      },
       "includedAssets": [
-        "Mã nguồn hoàn chỉnh (Next.js 14)",
-        "Bộ ảnh bản quyền HD không gắn watermark"
+        "Mã nguồn website hoàn chỉnh",
+        "File package.json và hướng dẫn cài đặt",
+        "Bộ ảnh bản quyền HD không gắn watermark",
+        "Tài liệu hướng dẫn deploy lên Vercel/Netlify miễn phí trọn đời"
       ],
-      "tags": ["Spa", "Clinic", "Thẩm mỹ viện", "Đặt lịch"]
+      "tags": [
+        "Spa",
+        "Clinic",
+        "Thẩm mỹ viện",
+        "Đặt lịch"
+      ]
     },
     {
       "id": "site-002",
@@ -52,7 +70,11 @@
       "price": 550000,
       "originalPrice": 1200000,
       "category": "restaurant",
-      "techStack": ["React", "Vite", "Tailwind CSS"],
+      "techStack": [
+        "HTML5",
+        "Tailwind CSS",
+        "JavaScript"
+      ],
       "thumbnail": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80",
       "gallery": [
         "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80"
@@ -66,26 +88,42 @@
       "features": [
         "Menu QR điện tử hỗ trợ ảnh món ăn sắc nét",
         "Giỏ hàng nhanh tính tiền tự động",
-        "Tích hợp bản đồ vị trí quán Google Maps"
+        "Tích hợp bản đồ vị trí quán Google Maps",
+        "Hỗ trợ chế độ Dark Mode ấm áp ban đêm"
       ],
       "pagesCount": 4,
-      "lighthouse": { "performance": 99, "accessibility": 98, "bestPractices": 95, "seo": 98 },
+      "lighthouse": {
+        "performance": 99,
+        "accessibility": 98,
+        "bestPractices": 95,
+        "seo": 98
+      },
       "includedAssets": [
-        "Source code React + Vite siêu tốc",
-        "File JSON cấu hình menu dễ chỉnh sửa"
+        "Source code sạch và cấu hình sẵn",
+        "File JSON cấu hình menu dễ chỉnh sửa",
+        "Tài liệu hướng dẫn triển khai lên Netlify/Cloudflare"
       ],
-      "tags": ["Cafe", "Nhà hàng", "Menu QR"]
+      "tags": [
+        "Cafe",
+        "Nhà hàng",
+        "Menu QR",
+        "F&B"
+      ]
     },
     {
       "id": "site-003",
       "slug": "nova-saas-landing",
       "title": "Nova Launch - Landing Page Bán Phần Mềm & Khóa Học",
       "tagline": "Landing page phong cách Silicon Valley tỷ lệ chuyển đổi cao, bảng giá linh hoạt",
-      "description": "Thiết kế theo chuẩn SaaS hiện đại nhất thế giới: Hero section cuốn hút với social proof, mô phỏng tính năng sản phẩm tương tác, bảng giá 3 gói dịch vụ, FAQ accordion.",
+      "description": "Thiết kế theo chuẩn SaaS hiện đại nhất: Hero section cuốn hút với social proof, mô phỏng tính năng sản phẩm tương tác, bảng giá 3 gói dịch vụ, FAQ accordion.",
       "price": 490000,
       "originalPrice": 990000,
       "category": "landing-page",
-      "techStack": ["Next.js 14", "Tailwind CSS", "TypeScript"],
+      "techStack": [
+        "HTML5",
+        "Tailwind CSS",
+        "JavaScript"
+      ],
       "thumbnail": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
       "gallery": [
         "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"
@@ -93,32 +131,47 @@
       "demoUrl": "http://localhost:4000/demos/nova-saas/index.html",
       "status": "published",
       "downloadFileName": "nova-saas-landing-v1.zip",
-      "fileSize": "3.6 KB",
-      "viewsCount": 2,
+      "fileSize": "3.7 KB",
+      "viewsCount": 1,
       "createdAt": "2026-10-05",
       "features": [
         "Tối ưu chuyển đổi đã A/B test hiệu quả",
-        "Bảng giá chuyển đổi tháng/năm",
-        "Hộp thoại Lead Capture bắt email tự động"
+        "Bảng giá chuyển đổi tháng/năm (Billing Switcher)",
+        "Hộp thoại Lead Capture bắt email tự động",
+        "Hiệu ứng scroll mượt mà không giật lag"
       ],
       "pagesCount": 3,
-      "lighthouse": { "performance": 100, "accessibility": 100, "bestPractices": 100, "seo": 100 },
+      "lighthouse": {
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100
+      },
       "includedAssets": [
-        "Full source code Next.js 14",
-        "Bản thiết kế Figma bản quyền"
+        "Mã nguồn hoàn chỉnh",
+        "Bản thiết kế cấu trúc chi tiết",
+        "Tài liệu hướng dẫn deploy"
       ],
-      "tags": ["Landing Page", "SaaS", "Phần mềm"]
+      "tags": [
+        "Landing Page",
+        "SaaS",
+        "Phần mềm"
+      ]
     },
     {
       "id": "site-004",
       "slug": "zenith-minimal-portfolio",
       "title": "Zenith Studio - Portfolio Cá Nhân & Agency Sáng Tạo",
       "tagline": "Showcase dự án phong cách tối giản Bắc Âu, bộ lọc dự án mượt mà",
-      "description": "Website hồ sơ năng lực dành cho UI/UX Designer, Nhiếp ảnh gia, Lập trình viên hoặc Creative Agency.",
+      "description": "Website hồ sơ năng lực dành cho UI/UX Designer, Nhiếp ảnh gia, Lập trình viên hoặc Creative Agency. Tập trung vào hình ảnh chất lượng cao và chữ thanh lịch.",
       "price": 390000,
       "originalPrice": 790000,
       "category": "portfolio",
-      "techStack": ["Astro", "Tailwind CSS"],
+      "techStack": [
+        "HTML5",
+        "Tailwind CSS",
+        "JavaScript"
+      ],
       "thumbnail": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
       "gallery": [
         "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80"
@@ -126,31 +179,45 @@
       "demoUrl": "http://localhost:4000/demos/zenith-portfolio/index.html",
       "status": "published",
       "downloadFileName": "zenith-portfolio-astro.zip",
-      "fileSize": "1.7 KB",
+      "fileSize": "1.5 KB",
       "viewsCount": 1,
       "createdAt": "2026-10-12",
       "features": [
-        "Xây dựng trên Astro: 0kb JavaScript ban đầu",
+        "Giao diện tối giản Bắc Âu thanh lịch",
         "Bộ lọc dự án theo chuyên môn",
-        "Form liên hệ chống Spam"
+        "Form liên hệ trực tiếp"
       ],
       "pagesCount": 4,
-      "lighthouse": { "performance": 100, "accessibility": 100, "bestPractices": 100, "seo": 100 },
+      "lighthouse": {
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100
+      },
       "includedAssets": [
-        "Mã nguồn Astro sạch 100%"
+        "Mã nguồn HTML5/Tailwind sạch",
+        "Tài liệu cấu hình"
       ],
-      "tags": ["Portfolio", "Minimalism", "Astro"]
+      "tags": [
+        "Portfolio",
+        "Minimalism",
+        "Designer"
+      ]
     },
     {
       "id": "site-005",
       "slug": "vogue-fashion-store",
       "title": "Vogue Boutique - Website Bán Hàng Thời Trang & Phụ Kiện",
       "tagline": "Cửa hàng trực tuyến phong cách tạp chí, bộ lọc kích cỡ/màu sắc & giỏ hàng",
-      "description": "Website bán hàng thời trang hoàn chỉnh với giao diện dạng lookbook, trang danh sách sản phẩm có bộ lọc đa năng.",
+      "description": "Website bán hàng thời trang hoàn chỉnh với giao diện dạng lookbook, trang danh sách sản phẩm có bộ lọc đa năng, giỏ hàng trượt sang trọng.",
       "price": 890000,
       "originalPrice": 2000000,
       "category": "ecommerce",
-      "techStack": ["Next.js 14", "Tailwind CSS"],
+      "techStack": [
+        "HTML5",
+        "Tailwind CSS",
+        "JavaScript"
+      ],
       "thumbnail": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
       "gallery": [
         "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80"
@@ -158,50 +225,62 @@
       "demoUrl": "http://localhost:4000/demos/vogue-store/index.html",
       "status": "published",
       "downloadFileName": "vogue-boutique-store-v1.zip",
-      "fileSize": "1.5 KB",
+      "fileSize": "4.2 KB",
       "viewsCount": 1,
       "createdAt": "2026-09-28",
       "features": [
-        "Trang Shop lọc theo Size, Màu sắc, Mức giá",
-        "Giỏ hàng Drawer lưu trên trình duyệt khách"
+        "Trang Shop chuyên nghiệp",
+        "Giỏ hàng nhanh",
+        "Trang Checkout mô phỏng VietQR"
       ],
       "pagesCount": 6,
-      "lighthouse": { "performance": 97, "accessibility": 98, "bestPractices": 96, "seo": 100 },
+      "lighthouse": {
+        "performance": 97,
+        "accessibility": 98,
+        "bestPractices": 96,
+        "seo": 100
+      },
       "includedAssets": [
-        "Mã nguồn Next.js 14 E-commerce"
+        "Mã nguồn website hoàn chỉnh",
+        "Bộ banner thiết kế sẵn"
       ],
-      "tags": ["E-Commerce", "Shop", "Thời trang"]
+      "tags": [
+        "E-Commerce",
+        "Thời trang",
+        "Shop"
+      ]
     }
   ],
   "orders": [
     {
-      "id": "ord-1794102145669",
+      "id": "ord-3790",
       "orderCode": "ORD-3790",
       "productId": "site-003",
       "productTitle": "Nova Launch - Landing Page Bán Phần Mềm & Khóa Học",
       "productPrice": 490000,
       "customerName": "Trần Khoa 11A2",
-      "customerEmail": "danzkhoa2009@gmail.com",
-      "customerPhone": "",
+      "customerEmail": "trankhoa@example.com",
+      "customerPhone": "0912345678",
       "status": "completed",
       "paymentMethod": "vietqr",
-      "licenseKey": "NOVA-J4IE-OTTI-2026",
-      "createdAt": "2026-11-08T01:42:25.669Z",
-      "completedAt": "2026-11-08T01:43:01.636Z",
-      "transactionId": "TXN-02181636"
+      "licenseKey": "NOVA-K207-X91A-2026",
+      "createdAt": "2026-11-08T08:15:00.000Z",
+      "completedAt": "2026-11-08T08:16:30.000Z"
     }
   ],
   "licenses": [
     {
-      "id": "lic-1794102181636",
-      "key": "NOVA-J4IE-OTTI-2026",
-      "orderCode": "ORD-3790",
+      "id": "lic-001",
+      "key": "NOVA-K207-X91A-2026",
       "productId": "site-003",
-      "customerEmail": "danzkhoa2009@gmail.com",
-      "downloadCount": 0,
-      "maxDownloads": 5,
+      "orderCode": "ORD-3790",
+      "customerName": "Trần Khoa 11A2",
+      "customerEmail": "trankhoa@example.com",
       "isActive": true,
-      "createdAt": "2026-11-08T01:43:01.636Z"
+      "domainBound": "",
+      "downloadCount": 1,
+      "maxDownloads": 10,
+      "createdAt": "2026-11-08T08:16:30.000Z"
     }
   ]
 }

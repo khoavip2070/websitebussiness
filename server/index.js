@@ -14,7 +14,9 @@ import {
   getLicensesFromSupabase,
   saveOrderToSupabase, 
   updateOrderInSupabase, 
+  deleteOrderFromSupabase,
   saveLicenseToSupabase, 
+  updateLicenseInSupabase,
   verifyLicenseInSupabase 
 } from './supabase.js';
 
@@ -539,6 +541,64 @@ app.post('/api/orders/:orderCode/verify', (req, res) => {
       license: newLicense,
       downloadUrl: `/api/download/${newLicense.key}`
     }
+  });
+});
+
+// Refund an order, revoke license, and deduct revenue
+app.post('/api/orders/:orderCode/refund', (req, res) => {
+  const order = (db.orders || []).find(o => o.orderCode === req.params.orderCode);
+  if (!order) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+
+  const { reason, refundTransactionId } = req.body || {};
+  order.status = 'refunded';
+  order.refundedAt = new Date().toISOString();
+  order.refundReason = reason || 'Hoàn tiền theo yêu cầu khách hàng';
+  order.refundTransactionId = refundTransactionId || `REF-${Date.now().toString().slice(-8)}`;
+
+  // Deactivate the associated license key so customer can no longer download
+  const lic = (db.licenses || []).find(l => l.orderCode === order.orderCode || l.key === order.licenseKey);
+  if (lic) {
+    lic.isActive = false;
+    updateLicenseInSupabase(lic.key, { isActive: false }).catch(() => {});
+  }
+
+  saveDatabase(db);
+
+  // Sync to Supabase
+  updateOrderInSupabase(order.orderCode, {
+    status: 'refunded',
+    refundedAt: order.refundedAt
+  }).catch(() => {});
+
+  res.json({
+    success: true,
+    message: `Đã hoàn đơn #${order.orderCode} thành công. Bản quyền đã được thu hồi và số tiền ${order.productPrice.toLocaleString('vi-VN')} đ đã được hoàn trả lại cho khách.`,
+    data: order
+  });
+});
+
+// Delete an order permanently
+app.delete('/api/orders/:orderCode', (req, res) => {
+  const index = (db.orders || []).findIndex(o => o.orderCode === req.params.orderCode);
+  if (index === -1) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng để xóa' });
+
+  const deletedOrder = db.orders.splice(index, 1)[0];
+
+  // Remove associated license
+  const licIndex = (db.licenses || []).findIndex(l => l.orderCode === deletedOrder.orderCode || l.key === deletedOrder.licenseKey);
+  if (licIndex !== -1) {
+    db.licenses.splice(licIndex, 1);
+  }
+
+  saveDatabase(db);
+
+  // Sync deletion to Supabase Cloud
+  deleteOrderFromSupabase(deletedOrder.orderCode).catch(() => {});
+
+  res.json({
+    success: true,
+    message: `Đã xóa vĩnh viễn đơn hàng #${deletedOrder.orderCode} khỏi hệ thống!`,
+    data: deletedOrder
   });
 });
 

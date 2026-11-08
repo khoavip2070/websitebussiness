@@ -8,6 +8,7 @@
     "apps/*"
   ],
   "scripts": {
+    "build": "npm run build:web",
     "dev:web": "npm --prefix apps/web run dev",
     "dev:desktop": "npm --prefix apps/desktop run dev",
     "dev:server": "node server/index.js",

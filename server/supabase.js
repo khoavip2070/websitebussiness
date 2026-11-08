@@ -296,6 +296,32 @@ export async function updateOrderInSupabase(orderCode, updates) {
   }
 }
 
+// Delete Order from Supabase
+export async function deleteOrderFromSupabase(orderCode) {
+  if (!supabase) return null;
+  try {
+    const { error } = await supabase.from('orders').delete().eq('order_code', orderCode);
+    if (error) console.error('[Supabase] Delete order error:', error.message);
+    return !error;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Update License in Supabase
+export async function updateLicenseInSupabase(key, updates) {
+  if (!supabase) return null;
+  try {
+    const record = {};
+    if (typeof updates.isActive === 'boolean') record.is_active = updates.isActive;
+    const { error } = await supabase.from('licenses').update(record).eq('key', key);
+    if (error) console.error('[Supabase] Update license error:', error.message);
+    return !error;
+  } catch (e) {
+    return false;
+  }
+}
+
 // Save License to Supabase
 export async function saveLicenseToSupabase(license) {
   if (!supabase) return null;
