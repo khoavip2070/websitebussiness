@@ -85,7 +85,7 @@ export const INITIAL_PRODUCTS: WebsiteProduct[] = [
     demoUrl: '/demos/forge-profile/index.html',
     status: 'published',
     downloadFileName: 'forge-gundam-3d-profile-v1.zip',
-    fileSize: '9.2 MB',
+    fileSize: '18.2 MB',
     rating: 5.0,
     reviewsCount: 1,
     viewsCount: 1,
