@@ -44,10 +44,22 @@ const desktopDist = path.join(__dirname, '..', 'apps', 'desktop', 'dist');
 const webDist = path.join(__dirname, '..', 'apps', 'web', 'dist');
 
 if (fs.existsSync(desktopDist)) {
-  app.use('/studio', express.static(desktopDist));
+  app.use('/studio', express.static(desktopDist, {
+    setHeaders: (res) => {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }));
 }
 if (fs.existsSync(webDist)) {
-  app.use('/store', express.static(webDist));
+  app.use('/store', express.static(webDist, {
+    setHeaders: (res) => {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }));
 }
 
 // Initial Database Loader
