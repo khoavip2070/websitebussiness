@@ -18,3 +18,4 @@ export * from './Reveal3D';
 export * from './BentoShowcase';
 
 export * from './ProductSearchBar';
+export * from './LicensePageView';

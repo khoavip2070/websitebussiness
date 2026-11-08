@@ -1,14 +1,42 @@
 import React from 'react';
 import { KeyRound, ArrowUpRight, Sparkles, ShieldCheck, Heart } from 'lucide-react';
+import { PageId } from './Navbar';
 
 interface FooterProps {
+  onNavigate?: (page: PageId) => void;
+  onSelectCategory?: (category: any) => void;
   onOpenLicenseModal?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenLicenseModal }) => {
-  const scrollToCatalog = () => {
-    const el = document.getElementById('catalog-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+export const Footer: React.FC<FooterProps> = ({ 
+  onNavigate, 
+  onSelectCategory,
+  onOpenLicenseModal 
+}) => {
+  const handleGoStore = () => {
+    if (onNavigate) {
+      onNavigate('store');
+    } else {
+      const el = document.getElementById('catalog-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleGoLicense = () => {
+    if (onNavigate) {
+      onNavigate('license');
+    } else if (onOpenLicenseModal) {
+      onOpenLicenseModal();
+    }
+  };
+
+  const handleCategoryClick = (cat: string) => {
+    if (onSelectCategory) {
+      onSelectCategory(cat);
+    }
+    if (onNavigate) {
+      onNavigate('store');
+    }
   };
 
   return (
@@ -37,29 +65,30 @@ export const Footer: React.FC<FooterProps> = ({ onOpenLicenseModal }) => {
 
           <div className="flex flex-wrap items-center justify-center gap-3 relative z-10 shrink-0">
             <button
-              onClick={scrollToCatalog}
-              className="px-6 py-3 rounded-full bg-white text-slate-950 font-bold text-xs hover:bg-slate-200 transition shadow-xl flex items-center gap-1.5 active:scale-95"
+              onClick={handleGoStore}
+              className="px-6 py-3 rounded-full bg-white text-slate-950 font-bold text-xs hover:bg-slate-200 transition shadow-xl flex items-center gap-1.5 active:scale-95 cursor-pointer"
             >
               <span>Xem Kho Website</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
-            {onOpenLicenseModal && (
-              <button
-                onClick={onOpenLicenseModal}
-                className="px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white font-semibold text-xs transition backdrop-blur-md flex items-center gap-1.5"
-              >
-                <KeyRound className="w-3.5 h-3.5 text-sky-400" />
-                <span>Tra cứu License</span>
-              </button>
-            )}
+            <button
+              onClick={handleGoLicense}
+              className="px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white font-semibold text-xs transition backdrop-blur-md flex items-center gap-1.5 active:scale-95 cursor-pointer"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-sky-400" />
+              <span>Tra cứu License</span>
+            </button>
           </div>
         </div>
 
         {/* Middle: Brand and Quick Tags */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-white/10">
           <div className="space-y-3 text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-500/20">
+            <div 
+              onClick={() => onNavigate && onNavigate('home')}
+              className="flex items-center justify-center md:justify-start gap-2.5 cursor-pointer group"
+            >
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
                 K
               </div>
               <span className="text-xl font-extrabold text-white tracking-tight">
@@ -76,24 +105,22 @@ export const Footer: React.FC<FooterProps> = ({ onOpenLicenseModal }) => {
 
           {/* Quick Category Badges */}
           <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 max-w-lg">
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-              Micro-SaaS & AI
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-              E-Commerce Shop
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-              Spa & Thẩm Mỹ
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-              Cafe & F&B
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-              Landing Page Chuyển Đổi
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-              Portfolio Sáng Tạo
-            </span>
+            {[
+              { label: 'Micro-SaaS & AI', cat: 'micro-saas' },
+              { label: 'E-Commerce Shop', cat: 'ecommerce' },
+              { label: 'Spa & Thẩm Mỹ', cat: 'spa-clinic' },
+              { label: 'Cafe & F&B', cat: 'coffee-fnb' },
+              { label: 'Landing Page Chuyển Đổi', cat: 'landing-page' },
+              { label: 'Portfolio Sáng Tạo', cat: 'portfolio' }
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={() => handleCategoryClick(item.cat)}
+                className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 hover:border-white/20 border border-white/10 text-slate-300 hover:text-white text-xs font-medium transition cursor-pointer"
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
         </div>
 

@@ -5,6 +5,8 @@ interface HeroProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSelectCategory?: (id: any) => void;
+  onExploreStore?: () => void;
+  onOpenLicense?: () => void;
   productCount?: number;
   totalSales?: number;
 }
@@ -12,6 +14,8 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({
   searchQuery,
   onSearchChange,
+  onExploreStore,
+  onOpenLicense,
   productCount = 0,
   totalSales = 0
 }) => {
@@ -23,9 +27,13 @@ export const Hero: React.FC<HeroProps> = ({
       y: ((e.clientY - rect.top) / rect.height - 0.5) * 2
     });
   };
-  const scrollToCatalog = () => {
-    const el = document.getElementById('catalog-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const handleExplore = () => {
+    if (onExploreStore) {
+      onExploreStore();
+    } else {
+      const el = document.getElementById('catalog-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -56,24 +64,39 @@ export const Hero: React.FC<HeroProps> = ({
             Tuyển chọn các mẫu website làm sẵn chuẩn quốc tế. Xem thử trực tiếp, thanh toán VietQR nhận trọn bộ file .ZIP và bản quyền tức thì.
           </p>
 
-          <div className="mt-8 relative max-w-md">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleExplore();
+            }}
+            className="mt-8 relative max-w-md"
+          >
             <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Tìm mẫu website..."
+              placeholder="Tìm theo tên website hoặc mã SP (Enter)..."
               className="w-full pl-11 pr-4 py-3 bg-white/5 text-white placeholder-slate-500 border border-white/15 focus:border-sky-400 rounded-full outline-none text-sm backdrop-blur-xl transition-colors"
             />
-          </div>
+          </form>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
-              onClick={scrollToCatalog}
-              className="px-6 py-3 rounded-full bg-white text-slate-950 text-sm font-bold hover:bg-slate-200 transition-colors flex items-center gap-2"
+              onClick={handleExplore}
+              className="px-6 py-3 rounded-full bg-white text-slate-950 text-sm font-bold hover:bg-slate-200 transition shadow-lg shadow-white/10 flex items-center gap-2 active:scale-95"
             >
-              Xem tất cả mẫu <ArrowRight className="w-4 h-4" />
+              <span>Khám Phá Kho Website</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
+            {onOpenLicense && (
+              <button
+                onClick={onOpenLicense}
+                className="px-5 py-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold transition active:scale-95"
+              >
+                Tra Cứu Bản Quyền
+              </button>
+            )}
           </div>
         </div>
 
