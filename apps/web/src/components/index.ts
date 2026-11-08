@@ -12,3 +12,5 @@ export * from './LicenseLookupModal';
 export * from './Footer';
 export * from './Particles3D';
 export * from './TiltedCard3D';
+
+export * from './Reveal3D';

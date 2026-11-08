@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, ShoppingBag } from 'lucide-react';
 import { WebsiteProduct } from '@sitevault/shared';
+import { TiltedCard3D } from './TiltedCard3D';
 
 interface ProductCardProps {
   product: WebsiteProduct;
@@ -23,7 +24,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     : 0;
 
   return (
-    <div className="group flex flex-col rounded-2xl bg-white/[0.04] border border-white/10 hover:border-sky-400/50 hover:bg-white/[0.06] transition-all duration-300 overflow-hidden">
+    <TiltedCard3D maxTilt={7} glare={true} className="h-full">
+    <div className="group flex h-full flex-col rounded-2xl bg-white/[0.04] border border-white/10 hover:border-sky-400/50 hover:bg-white/[0.06] transition-all duration-300 overflow-hidden">
       {/* Thumbnail */}
       <div
         className="relative aspect-[16/10] overflow-hidden bg-slate-950 cursor-pointer"
@@ -86,5 +88,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
     </div>
+    </TiltedCard3D>
   );
 };

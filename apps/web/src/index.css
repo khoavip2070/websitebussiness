@@ -32,3 +32,12 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@keyframes kweb-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -12px; }
+}
+.kweb-float { animation: kweb-float 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .kweb-float { animation: none; }
+}

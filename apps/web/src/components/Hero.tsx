@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight, Zap, ShieldCheck, Download, Search } from 'lucide-react';
 
 interface HeroProps {
@@ -15,13 +15,21 @@ export const Hero: React.FC<HeroProps> = ({
   productCount = 0,
   totalSales = 0
 }) => {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const onMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTilt({
+      x: ((e.clientX - rect.left) / rect.width - 0.5) * 2,
+      y: ((e.clientY - rect.top) / rect.height - 0.5) * 2
+    });
+  };
   const scrollToCatalog = () => {
     const el = document.getElementById('catalog-section');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="relative overflow-hidden border-b border-white/10 select-none">
+    <section onMouseMove={onMove} onMouseLeave={() => setTilt({ x: 0, y: 0 })} className="relative overflow-hidden border-b border-white/10 select-none">
       {/* Light streaks background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,rgba(37,99,235,0.25),transparent_60%)]" />
@@ -70,8 +78,15 @@ export const Hero: React.FC<HeroProps> = ({
         </div>
 
         {/* Right: glass stat cards */}
-        <div className="hidden lg:flex justify-end">
-          <div className="w-80 space-y-4">
+        <div className="hidden lg:flex justify-end" style={{ perspective: "1100px" }}>
+          <div
+            className="w-80 space-y-4 kweb-float"
+            style={{
+              transform: `rotateY(${-8 + tilt.x * 10}deg) rotateX(${4 - tilt.y * 8}deg)`,
+              transformStyle: "preserve-3d",
+              transition: "transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)"
+            }}
+          >
             <div className="rounded-2xl border border-white/15 bg-white/5 backdrop-blur-xl p-5 shadow-2xl shadow-blue-900/30">
               <div className="text-xs text-slate-400">Mẫu website đang bán</div>
               <div className="text-5xl font-semibold text-white mt-1">{productCount}</div>

@@ -5,12 +5,12 @@ import {
   CategoryNav, 
   ProductCard, 
   TrustSection,
-  FaqSection,
   LivePreviewModal, 
   ProductDetailModal, 
   CheckoutModal, 
   LicenseLookupModal, 
-  Footer 
+  Footer,
+  Reveal3D
 } from './components';
 import { WebsiteProduct, CategoryId, INITIAL_PRODUCTS } from '@sitevault/shared';
 import { SlidersHorizontal, ArrowUpDown, SearchX } from 'lucide-react';
@@ -247,9 +247,9 @@ export const App: React.FC = () => {
           {/* Product Grid */}
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
-              {filteredProducts.map((product) => (
+              {filteredProducts.map((product, i) => (
+                <Reveal3D key={product.id} delay={(i % 3) * 90}>
                 <ProductCard
-                  key={product.id}
                   product={product}
                   onPreview={(p) => {
                     recordView(p.id);
@@ -261,6 +261,7 @@ export const App: React.FC = () => {
                   }}
                   onBuy={handleBuy}
                 />
+                </Reveal3D>
               ))}
             </div>
           ) : (
@@ -292,9 +293,6 @@ export const App: React.FC = () => {
 
         {/* 5. Trust / Advantages Section */}
         <TrustSection />
-
-        {/* 6. FAQ Section */}
-        <FaqSection />
       </main>
 
       {/* 7. Modals */}
