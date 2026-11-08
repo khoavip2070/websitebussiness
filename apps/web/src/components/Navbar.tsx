@@ -18,14 +18,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-blue-500/25">
-            H
+            K
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xl font-extrabold tracking-tight text-white">
-              Hero<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-400">Web</span>
+              K<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-sky-400">Web</span>
             </span>
             <span className="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-full border border-sky-500/20 font-mono">
-              MICRO SITES
+              HERO VAULT
             </span>
           </div>
         </div>
@@ -56,7 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-[11px] font-mono">Hero Live</span>
+            <span className="text-[11px] font-mono">KWeb Live</span>
           </div>
         </div>
       </div>
