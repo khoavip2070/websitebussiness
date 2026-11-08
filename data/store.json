@@ -7,7 +7,172 @@
     "desktopNotify": true,
     "autoZipExclude": true
   },
-  "products": [],
+  "products": [
+    {
+      "id": "site-001",
+      "slug": "aura-luxury-spa",
+      "title": "Aura Spa & Clinic - Website Đặt Lịch & Chăm Sóc Sắc Đẹp",
+      "tagline": "Giao diện cao cấp chuẩn sang trọng, tích hợp đặt lịch hẹn trực tiếp qua Zalo/Email",
+      "description": "Mẫu website hoàn chỉnh dành riêng cho Spa, Thẩm mỹ viện, Phòng khám thẩm mỹ hoặc Salon tóc cao cấp. Tối ưu trải nghiệm mobile, bảng giá dịch vụ có hiệu ứng accordion, thư viện feedback khách hàng trước/sau.",
+      "price": 690000,
+      "originalPrice": 1500000,
+      "category": "services",
+      "techStack": ["Next.js 14", "Tailwind CSS", "TypeScript", "Lucide Icons"],
+      "thumbnail": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "demoUrl": "http://localhost:4000/demos/aura-spa/index.html",
+      "status": "published",
+      "downloadFileName": "aura-spa-clinic-nextjs-v1.zip",
+      "fileSize": "4.5 KB",
+      "viewsCount": 1,
+      "createdAt": "2026-10-15",
+      "features": [
+        "Giao diện Luxury tone màu be & vàng đồng chuẩn quốc tế",
+        "Form đặt lịch tư vấn gửi ngay vào Google Sheets hoặc Email",
+        "Bảng so sánh dịch vụ & bảng giá minh bạch",
+        "Tối ưu chuẩn SEO 100/100, chuẩn tốc độ di động Google Core Web Vitals"
+      ],
+      "pagesCount": 5,
+      "lighthouse": { "performance": 98, "accessibility": 100, "bestPractices": 96, "seo": 100 },
+      "includedAssets": [
+        "Mã nguồn hoàn chỉnh (Next.js 14)",
+        "Bộ ảnh bản quyền HD không gắn watermark"
+      ],
+      "tags": ["Spa", "Clinic", "Thẩm mỹ viện", "Đặt lịch"]
+    },
+    {
+      "id": "site-002",
+      "slug": "artisancoffee-roasters",
+      "title": "Artisan Brew - Website Quán Cafe & Đặt Hàng Trực Tuyến",
+      "tagline": "Website quán cà phê phong cách mộc mạc tối giản, menu điện tử và đặt mang về",
+      "description": "Dành cho chuỗi quán cafe, tiệm bánh ngọt hoặc bistro. Tích hợp menu QR điện tử có phân loại món, giỏ hàng popup nhẹ nhàng không cần tải lại trang.",
+      "price": 550000,
+      "originalPrice": 1200000,
+      "category": "restaurant",
+      "techStack": ["React", "Vite", "Tailwind CSS"],
+      "thumbnail": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "demoUrl": "http://localhost:4000/demos/artisan-brew/index.html",
+      "status": "published",
+      "downloadFileName": "artisan-coffee-vite-v1.zip",
+      "fileSize": "2.9 KB",
+      "viewsCount": 1,
+      "createdAt": "2026-10-20",
+      "features": [
+        "Menu QR điện tử hỗ trợ ảnh món ăn sắc nét",
+        "Giỏ hàng nhanh tính tiền tự động",
+        "Tích hợp bản đồ vị trí quán Google Maps"
+      ],
+      "pagesCount": 4,
+      "lighthouse": { "performance": 99, "accessibility": 98, "bestPractices": 95, "seo": 98 },
+      "includedAssets": [
+        "Source code React + Vite siêu tốc",
+        "File JSON cấu hình menu dễ chỉnh sửa"
+      ],
+      "tags": ["Cafe", "Nhà hàng", "Menu QR"]
+    },
+    {
+      "id": "site-003",
+      "slug": "nova-saas-landing",
+      "title": "Nova Launch - Landing Page Bán Phần Mềm & Khóa Học",
+      "tagline": "Landing page phong cách Silicon Valley tỷ lệ chuyển đổi cao, bảng giá linh hoạt",
+      "description": "Thiết kế theo chuẩn SaaS hiện đại nhất thế giới: Hero section cuốn hút với social proof, mô phỏng tính năng sản phẩm tương tác, bảng giá 3 gói dịch vụ, FAQ accordion.",
+      "price": 490000,
+      "originalPrice": 990000,
+      "category": "landing-page",
+      "techStack": ["Next.js 14", "Tailwind CSS", "TypeScript"],
+      "thumbnail": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "demoUrl": "http://localhost:4000/demos/nova-saas/index.html",
+      "status": "published",
+      "downloadFileName": "nova-saas-landing-v1.zip",
+      "fileSize": "3.6 KB",
+      "viewsCount": 2,
+      "createdAt": "2026-10-05",
+      "features": [
+        "Tối ưu chuyển đổi đã A/B test hiệu quả",
+        "Bảng giá chuyển đổi tháng/năm",
+        "Hộp thoại Lead Capture bắt email tự động"
+      ],
+      "pagesCount": 3,
+      "lighthouse": { "performance": 100, "accessibility": 100, "bestPractices": 100, "seo": 100 },
+      "includedAssets": [
+        "Full source code Next.js 14",
+        "Bản thiết kế Figma bản quyền"
+      ],
+      "tags": ["Landing Page", "SaaS", "Phần mềm"]
+    },
+    {
+      "id": "site-004",
+      "slug": "zenith-minimal-portfolio",
+      "title": "Zenith Studio - Portfolio Cá Nhân & Agency Sáng Tạo",
+      "tagline": "Showcase dự án phong cách tối giản Bắc Âu, bộ lọc dự án mượt mà",
+      "description": "Website hồ sơ năng lực dành cho UI/UX Designer, Nhiếp ảnh gia, Lập trình viên hoặc Creative Agency.",
+      "price": 390000,
+      "originalPrice": 790000,
+      "category": "portfolio",
+      "techStack": ["Astro", "Tailwind CSS"],
+      "thumbnail": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "demoUrl": "http://localhost:4000/demos/zenith-portfolio/index.html",
+      "status": "published",
+      "downloadFileName": "zenith-portfolio-astro.zip",
+      "fileSize": "1.7 KB",
+      "viewsCount": 1,
+      "createdAt": "2026-10-12",
+      "features": [
+        "Xây dựng trên Astro: 0kb JavaScript ban đầu",
+        "Bộ lọc dự án theo chuyên môn",
+        "Form liên hệ chống Spam"
+      ],
+      "pagesCount": 4,
+      "lighthouse": { "performance": 100, "accessibility": 100, "bestPractices": 100, "seo": 100 },
+      "includedAssets": [
+        "Mã nguồn Astro sạch 100%"
+      ],
+      "tags": ["Portfolio", "Minimalism", "Astro"]
+    },
+    {
+      "id": "site-005",
+      "slug": "vogue-fashion-store",
+      "title": "Vogue Boutique - Website Bán Hàng Thời Trang & Phụ Kiện",
+      "tagline": "Cửa hàng trực tuyến phong cách tạp chí, bộ lọc kích cỡ/màu sắc & giỏ hàng",
+      "description": "Website bán hàng thời trang hoàn chỉnh với giao diện dạng lookbook, trang danh sách sản phẩm có bộ lọc đa năng.",
+      "price": 890000,
+      "originalPrice": 2000000,
+      "category": "ecommerce",
+      "techStack": ["Next.js 14", "Tailwind CSS"],
+      "thumbnail": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "demoUrl": "http://localhost:4000/demos/vogue-store/index.html",
+      "status": "published",
+      "downloadFileName": "vogue-boutique-store-v1.zip",
+      "fileSize": "1.5 KB",
+      "viewsCount": 1,
+      "createdAt": "2026-09-28",
+      "features": [
+        "Trang Shop lọc theo Size, Màu sắc, Mức giá",
+        "Giỏ hàng Drawer lưu trên trình duyệt khách"
+      ],
+      "pagesCount": 6,
+      "lighthouse": { "performance": 97, "accessibility": 98, "bestPractices": 96, "seo": 100 },
+      "includedAssets": [
+        "Mã nguồn Next.js 14 E-commerce"
+      ],
+      "tags": ["E-Commerce", "Shop", "Thời trang"]
+    }
+  ],
   "orders": [
     {
       "id": "ord-1794102145669",

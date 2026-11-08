@@ -277,60 +277,16 @@ export const INITIAL_PRODUCTS: WebsiteProduct[] = [
   }
 ];
 
-export const INITIAL_ORDERS: Order[] = [
-  {
-    id: 'ord-8921',
-    orderCode: 'ORD-9821',
-    productId: 'site-001',
-    productTitle: 'Aura Spa & Clinic - Website Đặt Lịch & Chăm Sóc Sắc Đẹp',
-    productPrice: 690000,
-    customerName: 'Nguyễn Văn Minh',
-    customerEmail: 'minh.nguyen@gmail.com',
-    customerPhone: '0912345678',
-    status: 'completed',
-    paymentMethod: 'vietqr',
-    transactionId: 'VQR-20261105-8831',
-    licenseKey: 'AURA-89X2-LK99-VN26',
-    createdAt: '2026-11-05 14:32',
-    completedAt: '2026-11-05 14:33'
-  },
-  {
-    id: 'ord-8922',
-    orderCode: 'ORD-9822',
-    productId: 'site-003',
-    productTitle: 'Nova Launch - Landing Page Bán Phần Mềm & Khóa Học',
-    productPrice: 490000,
-    customerName: 'Trần Thị Thu Hà',
-    customerEmail: 'thuha.tech@outlook.com',
-    customerPhone: '0988776655',
-    status: 'completed',
-    paymentMethod: 'vietqr',
-    transactionId: 'VQR-20261106-1102',
-    licenseKey: 'NOVA-77J4-MP21-X990',
-    createdAt: '2026-11-06 09:15',
-    completedAt: '2026-11-06 09:16'
-  },
-  {
-    id: 'ord-8923',
-    orderCode: 'ORD-9823',
-    productId: 'site-005',
-    productTitle: 'Vogue Boutique - Website Bán Hàng Thời Trang & Phụ Kiện',
-    productPrice: 890000,
-    customerName: 'Lê Hoàng Nam',
-    customerEmail: 'nam.lehoang@agency.vn',
-    customerPhone: '0903123889',
-    status: 'pending',
-    paymentMethod: 'vietqr',
-    licenseKey: 'VOGUE-P092-ZZ14-PEND',
-    createdAt: '2026-11-07 19:40'
-  }
-];
+export const INITIAL_ORDERS: Order[] = [];
 
 export const INITIAL_STATS: DashboardStats = {
-  totalRevenue: 28450000,
-  totalSales: 243,
+  totalRevenue: 0,
+  totalSales: 0,
   totalWebsites: 5,
   publishedWebsites: 5,
-  pendingOrders: 1,
-  recentViews: 4120
+  pendingOrders: 0,
+  recentViews: 0,
+  averageOrderValue: 0,
+  weeklyStats: [],
+  categoryStats: {}
 };
