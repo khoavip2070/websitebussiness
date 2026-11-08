@@ -17,7 +17,7 @@ import { WebsiteProduct, CategoryId, INITIAL_PRODUCTS } from '@sitevault/shared'
 import { SlidersHorizontal, ArrowUpDown, SearchX } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [products, setProducts] = useState<WebsiteProduct[]>(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<WebsiteProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +87,19 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
+
+    // Tự động đồng bộ liên tục ngầm với phần mềm Desktop mỗi 2 giây
+    const interval = setInterval(() => {
+      fetchProducts();
+    }, 2000);
+
+    const onFocus = () => fetchProducts();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, []);
 
   // Filter & Sort

@@ -77,17 +77,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       }
     } catch (err) {
       console.error(err);
-      // Fallback offline mock order
+      // Fallback offline order with shop owner's real account
       const mockCode = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+      const bankAcc = '9933487119';
+      const bankName = 'Techcombank';
+      const accName = 'TRAN DANG KHOA';
       setOrderData({
         data: { orderCode: mockCode, licenseKey: `MOCK-${Date.now().toString(36).toUpperCase()}` },
         payment: {
-          bankAccount: '19036888899999',
-          bankName: 'Techcombank',
-          accountName: 'NGUYEN STORE OWNER',
+          bankAccount: bankAcc,
+          bankName: bankName,
+          accountName: accName,
           amount: product.price,
           content: mockCode,
-          qrUrl: `https://img.vietqr.io/image/970407-19036888899999-compact2.png?amount=${product.price}&addInfo=${encodeURIComponent(mockCode)}&accountName=NGUYEN%20STORE%20OWNER`
+          qrUrl: `https://img.vietqr.io/image/970407-${bankAcc}-compact2.png?amount=${product.price}&addInfo=${encodeURIComponent(mockCode)}&accountName=${encodeURIComponent(accName)}`
         }
       });
       setStep('payment');
