@@ -1,0 +1,12 @@
+{
+  "name": "aura-spa-clinic-template",
+  "version": "1.0.0",
+  "description": "Website giao diện cao cấp dành cho Spa & Thẩm mỹ viện",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["spa", "clinic", "website-template", "tailwindcss"],
+  "author": "KWeb",
+  "license": "Commercial"
+}

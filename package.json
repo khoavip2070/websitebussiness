@@ -1,0 +1,28 @@
+{
+  "name": "website-business-suite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hệ sinh thái kinh doanh website: Ứng dụng Desktop quản lý + Website bán hàng",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:desktop": "npm --prefix apps/desktop run dev",
+    "dev:server": "node server/index.js",
+    "build:web": "npm --prefix apps/web run build",
+    "build:desktop": "npm --prefix apps/desktop run build"
+  },
+  "keywords": [
+    "website-store",
+    "desktop-manager",
+    "micro-websites"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "archiver": "^8.0.0"
+  }
+}

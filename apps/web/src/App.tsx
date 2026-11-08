@@ -1,0 +1,286 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Navbar, 
+  Hero, 
+  SpotlightHero,
+  CategoryNav, 
+  ProductCard, 
+  TrustSection,
+  FaqSection,
+  LivePreviewModal, 
+  ProductDetailModal, 
+  CheckoutModal, 
+  LicenseLookupModal, 
+  Footer 
+} from './components';
+import { WebsiteProduct, CategoryId, INITIAL_PRODUCTS } from '@sitevault/shared';
+import { SlidersHorizontal, ArrowUpDown, SearchX } from 'lucide-react';
+
+export const App: React.FC = () => {
+  const [products, setProducts] = useState<WebsiteProduct[]>(INITIAL_PRODUCTS);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'popular' | 'price-asc' | 'price-desc' | 'newest'>('popular');
+  const [selectedTech, setSelectedTech] = useState<string>('all');
+
+  // Modals state
+  const [previewProduct, setPreviewProduct] = useState<WebsiteProduct | null>(null);
+  const [detailProduct, setDetailProduct] = useState<WebsiteProduct | null>(null);
+  const [checkoutProduct, setCheckoutProduct] = useState<WebsiteProduct | null>(null);
+  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+
+  // Fetch products from backend API (100% Real Data)
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch('/api/products');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setProducts(data.data);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Real API not reached, using catalog data:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Filter & Sort
+  const filteredProducts = useMemo(() => {
+    return products
+      .filter((p) => {
+        if (selectedCategory !== 'all' && p.category !== selectedCategory) return false;
+        if (selectedTech !== 'all' && !p.techStack.some((t) => t.toLowerCase().includes(selectedTech.toLowerCase()))) return false;
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          const matchTitle = p.title.toLowerCase().includes(q);
+          const matchTagline = p.tagline.toLowerCase().includes(q);
+          const matchTech = p.techStack.some((t) => t.toLowerCase().includes(q));
+          const matchCategory = p.category.toLowerCase().includes(q);
+          if (!matchTitle && !matchTagline && !matchTech && !matchCategory) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'price-asc') return a.price - b.price;
+        if (sortBy === 'price-desc') return b.price - a.price;
+        if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (b.salesCount || 0) - (a.salesCount || 0);
+      });
+  }, [products, selectedCategory, searchQuery, sortBy, selectedTech]);
+
+  // Category counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: products.length };
+    products.forEach((p) => {
+      counts[p.category] = (counts[p.category] || 0) + 1;
+    });
+    return counts;
+  }, [products]);
+
+  // Spotlight product (Top item, e.g. Nova SaaS or first item)
+  const spotlightProduct = useMemo(() => {
+    return products.find((p) => p.slug === 'nova-saas-landing') || products[0];
+  }, [products]);
+
+  // Extract all tech stack options
+  const allTechOptions = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => p.techStack.forEach((t) => set.add(t)));
+    return Array.from(set);
+  }, [products]);
+
+  // Record real view on user interaction
+  const recordView = (productId: string) => {
+    fetch(`/api/products/${productId}/view`, { method: 'POST' }).catch(() => {});
+  };
+
+  const handleBuy = (product: WebsiteProduct) => {
+    setPreviewProduct(null);
+    setDetailProduct(null);
+    setCheckoutProduct(product);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#070A11] text-slate-100">
+      {/* 1. Header */}
+      <Navbar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
+
+      {/* 2. Hero Section */}
+      <Hero
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSelectCategory={(catId) => {
+          setSelectedCategory(catId);
+          const el = document.getElementById('catalog-section');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
+
+      {/* 3. Main Content Container */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
+        {/* Spotlight Showcase (HeroInspo Featured Website) */}
+        {!searchQuery && selectedCategory === 'all' && spotlightProduct && (
+          <SpotlightHero
+            product={spotlightProduct}
+            onPreview={(p) => {
+              recordView(p.id);
+              setPreviewProduct(p);
+            }}
+            onSelect={(p) => {
+              recordView(p.id);
+              setDetailProduct(p);
+            }}
+            onBuy={handleBuy}
+          />
+        )}
+
+        <div id="catalog-section" className="scroll-mt-24">
+          {/* 4. Category Filter Bar */}
+          <CategoryNav
+            selectedCategory={selectedCategory}
+            onSelectCategory={(id) => {
+              setSelectedCategory(id);
+              setSelectedTech('all');
+            }}
+            categoryCounts={categoryCounts}
+          />
+
+          {/* Controls Bar: Results Count, Tech Filter, Sort */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 my-8 bg-slate-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-white">
+                {filteredProducts.length} mẫu website làm sẵn
+              </span>
+              {searchQuery && (
+                <span className="text-xs text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full font-medium border border-sky-500/20">
+                  Từ khóa: "{searchQuery}"
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Tech filter */}
+              <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <span className="font-semibold text-slate-400">Công nghệ:</span>
+                <select
+                  value={selectedTech}
+                  onChange={(e) => setSelectedTech(e.target.value)}
+                  className="bg-slate-800/80 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl border border-white/10 outline-none font-semibold cursor-pointer text-xs"
+                >
+                  <option value="all">Tất cả công nghệ</option>
+                  {allTechOptions.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <span className="font-semibold text-slate-400">Sắp xếp:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="bg-slate-800/80 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl border border-white/10 outline-none font-semibold cursor-pointer text-xs"
+                >
+                  <option value="popular">Bán chạy nhất</option>
+                  <option value="newest">Mới cập nhật</option>
+                  <option value="price-asc">Giá: Thấp đến Cao</option>
+                  <option value="price-desc">Giá: Cao đến Thấp</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Product Grid */}
+          {filteredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onPreview={(p) => {
+                    recordView(p.id);
+                    setPreviewProduct(p);
+                  }}
+                  onSelect={(p) => {
+                    recordView(p.id);
+                    setDetailProduct(p);
+                  }}
+                  onBuy={handleBuy}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="py-20 text-center bg-slate-900/40 rounded-3xl border border-dashed border-white/15 max-w-lg mx-auto">
+              <SearchX className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-white">Không tìm thấy website phù hợp</h3>
+              <p className="text-xs text-slate-400 mt-1 mb-4">
+                Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc danh mục.
+              </p>
+              <button
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setSearchQuery('');
+                  setSelectedTech('all');
+                }}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors"
+              >
+                Xem lại tất cả mẫu
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* 5. Trust / Advantages Section */}
+        <TrustSection />
+
+        {/* 6. FAQ Section */}
+        <FaqSection />
+      </main>
+
+      {/* 7. Modals */}
+      <LivePreviewModal
+        product={previewProduct}
+        onClose={() => setPreviewProduct(null)}
+        onBuy={handleBuy}
+      />
+
+      <ProductDetailModal
+        product={detailProduct}
+        onClose={() => setDetailProduct(null)}
+        onPreview={(p) => {
+          recordView(p.id);
+          setPreviewProduct(p);
+        }}
+        onBuy={handleBuy}
+      />
+
+      <CheckoutModal
+        product={checkoutProduct}
+        onClose={() => setCheckoutProduct(null)}
+        onOrderSuccess={() => {
+          fetchProducts();
+        }}
+      />
+
+      <LicenseLookupModal
+        isOpen={isLicenseModalOpen}
+        onClose={() => setIsLicenseModalOpen(false)}
+      />
+
+      {/* 8. Footer */}
+      <Footer onOpenLicenseModal={() => setIsLicenseModalOpen(true)} />
+    </div>
+  );
+};
+
+export default App;

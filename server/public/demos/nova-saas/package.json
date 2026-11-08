@@ -1,0 +1,12 @@
+{
+  "name": "nova-saas-landing-template",
+  "version": "1.0.0",
+  "description": "Landing page tỷ lệ chuyển đổi cao dành cho SaaS, phần mềm & AI Tools",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["saas", "landing-page", "website-template", "tailwindcss"],
+  "author": "KWeb",
+  "license": "Commercial"
+}
