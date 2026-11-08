@@ -30,20 +30,59 @@ export const App: React.FC = () => {
   const [checkoutProduct, setCheckoutProduct] = useState<WebsiteProduct | null>(null);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
 
-  // Fetch products from backend API (100% Real Data)
+  // Fetch products from backend API or Supabase Cloud (100% Real-time sync)
   const fetchProducts = async () => {
     try {
       const res = await fetch('/api/products');
       if (res.ok) {
-        const data = await res.json();
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          setProducts(data.data);
-          return;
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data)) {
+            setProducts(data.data);
+            return;
+          }
         }
       }
-    } catch (err) {
-      console.warn('Real API not reached, using catalog data:', err);
-    }
+    } catch (_) {}
+
+    // Fallback: Query Supabase Cloud directly (for Vercel deployment)
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL || 'https://vbbweuyosfwhgrcyszvg.supabase.co';
+      const supabaseKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'sb_publishable_eUP6EEeNc-rJUnevaU_zPA__XMg12uP';
+      const sb = createClient(supabaseUrl, supabaseKey);
+      const { data, error } = await sb.from('products').select('*').eq('status', 'published');
+      if (!error && Array.isArray(data)) {
+        const mapped: WebsiteProduct[] = data.map((sp: any) => ({
+          id: sp.id,
+          slug: sp.slug,
+          title: sp.title,
+          tagline: sp.tagline || '',
+          description: sp.description || '',
+          price: Number(sp.price),
+          originalPrice: Number(sp.original_price || sp.price * 2),
+          category: sp.category,
+          techStack: Array.isArray(sp.tech_stack) ? sp.tech_stack : [],
+          thumbnail: sp.thumbnail || '',
+          gallery: Array.isArray(sp.gallery) ? sp.gallery : [sp.thumbnail],
+          demoUrl: sp.demo_url || '',
+          status: sp.status,
+          downloadFileName: sp.download_file_name || '',
+          fileSize: sp.file_size || '0 KB',
+          rating: Number(sp.rating || 5.0),
+          reviewsCount: Number(sp.reviews_count || 0),
+          salesCount: Number(sp.sales_count || 0),
+          features: Array.isArray(sp.features) ? sp.features : [],
+          pagesCount: Number(sp.pages_count || 1),
+          createdAt: sp.created_at || new Date().toISOString(),
+          lighthouse: sp.lighthouse || { performance: 99, accessibility: 100, bestPractices: 100, seo: 100 },
+          includedAssets: Array.isArray(sp.included_assets) ? sp.included_assets : [],
+          tags: Array.isArray(sp.tags) ? sp.tags : []
+        }));
+        setProducts(mapped);
+      }
+    } catch (_) {}
   };
 
   useEffect(() => {
@@ -222,20 +261,26 @@ export const App: React.FC = () => {
           ) : (
             <div className="py-20 text-center bg-slate-900/40 rounded-3xl border border-dashed border-white/15 max-w-lg mx-auto">
               <SearchX className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-white">Không tìm thấy website phù hợp</h3>
+              <h3 className="text-base font-bold text-white">
+                {products.length === 0 ? 'Kho website đang được cập nhật' : 'Không tìm thấy website phù hợp'}
+              </h3>
               <p className="text-xs text-slate-400 mt-1 mb-4">
-                Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc danh mục.
+                {products.length === 0
+                  ? 'Hiện tại các mẫu website đang được làm mới hoặc đã gỡ. Vui lòng quay lại sau!'
+                  : 'Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc danh mục.'}
               </p>
-              <button
-                onClick={() => {
-                  setSelectedCategory('all');
-                  setSearchQuery('');
-                  setSelectedTech('all');
-                }}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors"
-              >
-                Xem lại tất cả mẫu
-              </button>
+              {products.length > 0 && (
+                <button
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSearchQuery('');
+                    setSelectedTech('all');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors"
+                >
+                  Xem lại tất cả mẫu
+                </button>
+              )}
             </div>
           )}
         </div>
