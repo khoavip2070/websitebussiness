@@ -19,3 +19,4 @@ export * from './BentoShowcase';
 
 export * from './ProductSearchBar';
 export * from './LicensePageView';
+export * from './AdminPortalModal';

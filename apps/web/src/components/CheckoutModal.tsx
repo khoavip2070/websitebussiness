@@ -11,7 +11,9 @@ import {
   ExternalLink,
   Loader2, 
   Sparkles,
-  AlertTriangle
+  AlertTriangle,
+  Clock,
+  Send
 } from 'lucide-react';
 import { WebsiteProduct } from '@sitevault/shared';
 
@@ -42,6 +44,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [hasNotified, setHasNotified] = useState(false);
+  const [isNotifying, setIsNotifying] = useState(false);
 
   if (!product) return null;
 
@@ -55,7 +59,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  // Real-time automatic polling: checks if bank transfer arrived
+  // Real-time automatic polling: checks if Admin approved or bank payment arrived
   useEffect(() => {
     if (step !== 'payment' || !orderData?.data?.orderCode) return;
     const code = orderData.data.orderCode;
@@ -75,9 +79,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             setStep('success');
             onOrderSuccess();
           }
+          if (json.notifiedPaid) {
+            setHasNotified(true);
+          }
         }
       } catch (_) {}
-    }, 2500);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [step, orderData, onOrderSuccess, product.price]);
@@ -86,6 +93,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     e.preventDefault();
     setIsSubmitting(true);
     setVerifyError(null);
+    setHasNotified(false);
 
     try {
       const res = await fetch('/api/orders', {
@@ -127,6 +135,26 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       setStep('payment');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleNotifyPaid = async () => {
+    const code = orderData?.data?.orderCode;
+    if (!code) return;
+    setIsNotifying(true);
+    setVerifyError(null);
+
+    try {
+      const res = await fetch(`/api/orders/${code}/notify-paid`, { method: 'POST' });
+      if (res.ok) {
+        setHasNotified(true);
+      } else {
+        setHasNotified(true);
+      }
+    } catch (_) {
+      setHasNotified(true);
+    } finally {
+      setIsNotifying(false);
     }
   };
 
@@ -311,48 +339,56 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               💡 Mở ứng dụng ngân hàng bất kỳ (Vietcombank, MB, Techcombank, MoMo...) và chọn <strong>Quét mã QR</strong> để thanh toán tức thì.
             </p>
 
-            {/* Live real-time check indicator */}
-            <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-              <span>Hệ thống tự động phát hiện thanh toán ngân hàng (1 - 3s)</span>
-            </div>
+            {/* Live Status Indicator */}
+            {hasNotified ? (
+              <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold text-center">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping shrink-0" />
+                <span>Đã báo chuyển tiền — Chờ Admin kiểm tra & duyệt đơn (1 - 3 phút)</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-semibold text-center">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
+                <span>Quét mã QR chuyển khoản. Sau khi chuyển xong, bấm nút bên dưới!</span>
+              </div>
+            )}
 
-            {/* Error notice if money has not arrived yet */}
+            {/* Error notice if any */}
             {verifyError && (
-              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 text-left flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 text-left flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                 <span>{verifyError}</span>
               </div>
             )}
 
-            <button
-              onClick={handleVerifyPayment}
-              disabled={isSubmitting}
-              className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-md shadow-emerald-600/25 flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Hệ thống đang kiểm tra giao dịch...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Tôi đã chuyển khoản thành công</span>
-                </>
-              )}
-            </button>
-
-            {orderData.payment.checkoutUrl && (
-              <a
-                href={orderData.payment.checkoutUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-2 border border-slate-300 transition"
+            {/* Action buttons */}
+            {!hasNotified ? (
+              <button
+                onClick={handleNotifyPaid}
+                disabled={isNotifying}
+                className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-600/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
-                <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
-                <span>Mở trang thanh toán cổng PayOS</span>
-              </a>
+                {isNotifying ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Đang gửi thông báo tới Admin...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Tôi đã chuyển khoản xong — Báo Admin duyệt đơn</span>
+                  </>
+                )}
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <div className="w-full py-3.5 rounded-xl bg-amber-100/90 border border-amber-300 text-amber-900 font-bold text-xs flex items-center justify-center gap-2 select-none shadow-sm">
+                  <Clock className="w-4 h-4 text-amber-700 animate-spin" />
+                  <span>Đang chờ Admin kiểm tra số dư & duyệt đơn...</span>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Màn hình sẽ <strong>tự động mở khóa</strong> ngay khi Admin duyệt đơn thành công. Bạn không cần tải lại trang.
+                </p>
+              </div>
             )}
           </div>
         )}

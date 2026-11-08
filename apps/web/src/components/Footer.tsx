@@ -6,12 +6,14 @@ interface FooterProps {
   onNavigate?: (page: PageId) => void;
   onSelectCategory?: (category: any) => void;
   onOpenLicenseModal?: () => void;
+  onOpenAdminModal?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ 
   onNavigate, 
   onSelectCategory,
-  onOpenLicenseModal 
+  onOpenLicenseModal,
+  onOpenAdminModal
 }) => {
   const handleGoStore = () => {
     if (onNavigate) {
@@ -126,8 +128,18 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Bottom Bar: Copyright & Live Cloud Indicator */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-          <div>
-            © 2026 KWeb. Tất cả các quyền được bảo lưu. Thiết kế theo tiêu chuẩn Cirform & HeroInspo.
+          <div className="flex items-center gap-3">
+            <span>© 2026 KWeb. Tất cả các quyền được bảo lưu.</span>
+            {onOpenAdminModal && (
+              <button
+                onClick={onOpenAdminModal}
+                className="text-slate-600 hover:text-slate-300 transition flex items-center gap-1 cursor-pointer"
+                title="Quản trị & Duyệt đơn hàng"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
+                <span>Admin Duyệt Đơn</span>
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-4">

@@ -10,6 +10,7 @@ import {
   CheckoutModal, 
   LicenseLookupModal, 
   LicensePageView,
+  AdminPortalModal,
   Footer,
   Reveal3D,
   BentoShowcase
@@ -52,12 +53,21 @@ export const App: React.FC = () => {
   const [detailProduct, setDetailProduct] = useState<WebsiteProduct | null>(null);
   const [checkoutProduct, setCheckoutProduct] = useState<WebsiteProduct | null>(null);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
-  // Sync hash routing
+  // Sync hash routing & detect #admin portal
   useEffect(() => {
     const onHashChange = () => {
-      setCurrentPage(getPageFromHash());
+      const hash = window.location.hash.toLowerCase().replace('#', '');
+      if (hash === 'admin' || hash === 'quan-tri') {
+        setIsAdminModalOpen(true);
+      } else {
+        setCurrentPage(getPageFromHash());
+      }
     };
+    if (window.location.hash.toLowerCase().includes('admin')) {
+      setIsAdminModalOpen(true);
+    }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
@@ -443,11 +453,23 @@ export const App: React.FC = () => {
         onClose={() => setIsLicenseModalOpen(false)}
       />
 
+      <AdminPortalModal
+        isOpen={isAdminModalOpen}
+        onClose={() => {
+          setIsAdminModalOpen(false);
+          if (window.location.hash.includes('admin')) {
+            window.location.hash = '';
+          }
+        }}
+        onOrderUpdated={fetchProducts}
+      />
+
       {/* 4. Global Luxury Footer */}
       <Footer
         onNavigate={navigateTo}
         onSelectCategory={(cat) => setSelectedCategory(cat)}
         onOpenLicenseModal={() => navigateTo('license')}
+        onOpenAdminModal={() => setIsAdminModalOpen(true)}
       />
     </div>
   );
