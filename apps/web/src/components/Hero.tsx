@@ -47,7 +47,7 @@ export const Hero: React.FC<HeroProps> = ({
             <br />
             <span
               className="italic font-normal text-sky-200"
-              style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
+              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
             >
               sẵn sàng để bán
             </span>
