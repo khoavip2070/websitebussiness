@@ -9,7 +9,8 @@ import {
   CheckoutModal, 
   LicenseLookupModal, 
   Footer,
-  Reveal3D
+  Reveal3D,
+  BentoShowcase
 } from './components';
 import { WebsiteProduct, CategoryId, INITIAL_PRODUCTS } from '@sitevault/shared';
 import { SlidersHorizontal, ArrowUpDown, SearchX } from 'lucide-react';
@@ -289,6 +290,9 @@ export const App: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* 5. Bento Showcase (Cirform style) */}
+        <BentoShowcase />
       </main>
 
       {/* 7. Modals */}

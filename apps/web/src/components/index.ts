@@ -14,3 +14,5 @@ export * from './Particles3D';
 export * from './TiltedCard3D';
 
 export * from './Reveal3D';
+
+export * from './BentoShowcase';
