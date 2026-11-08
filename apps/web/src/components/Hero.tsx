@@ -43,17 +43,17 @@ export const Hero: React.FC<HeroProps> = ({
         {/* Left: headline */}
         <div>
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold text-white tracking-tight leading-[1.05]">
-            Website làm sẵn
+            Khởi tạo website
             <br />
             <span
               className="italic font-normal text-sky-200"
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
             >
-              sẵn sàng để bán
+              chuẩn mực tương lai
             </span>
           </h1>
           <p className="mt-6 text-slate-400 text-base sm:text-lg max-w-lg leading-relaxed">
-            Chọn mẫu, xem thử trực tiếp, thanh toán VietQR và nhận file .ZIP cùng bản quyền ngay.
+            Tuyển chọn các mẫu website làm sẵn chuẩn quốc tế. Xem thử trực tiếp, thanh toán VietQR nhận trọn bộ file .ZIP và bản quyền tức thì.
           </p>
 
           <div className="mt-8 relative max-w-md">
