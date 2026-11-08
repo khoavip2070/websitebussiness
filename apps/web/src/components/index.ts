@@ -16,3 +16,5 @@ export * from './TiltedCard3D';
 export * from './Reveal3D';
 
 export * from './BentoShowcase';
+
+export * from './ProductSearchBar';

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Navbar, 
   Hero,
-  CategoryNav, 
+  ProductSearchBar,
   ProductCard, 
   LivePreviewModal, 
   ProductDetailModal, 
@@ -113,7 +113,9 @@ export const App: React.FC = () => {
           const matchTagline = p.tagline.toLowerCase().includes(q);
           const matchTech = p.techStack.some((t) => t.toLowerCase().includes(q));
           const matchCategory = p.category.toLowerCase().includes(q);
-          if (!matchTitle && !matchTagline && !matchTech && !matchCategory) return false;
+          const matchId = (p.id || "").toLowerCase().includes(q);
+          const matchSlug = (p.slug || "").toLowerCase().includes(q);
+          if (!matchTitle && !matchTagline && !matchId && !matchSlug && !matchTech && !matchCategory) return false;
         }
         return true;
       })
@@ -188,62 +190,16 @@ export const App: React.FC = () => {
       {/* 3. Main Content Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
         <div id="catalog-section" className="scroll-mt-24">
-          {/* 4. Category Filter Bar */}
-          <CategoryNav
-            selectedCategory={selectedCategory}
-            onSelectCategory={(id) => {
-              setSelectedCategory(id);
-              setSelectedTech('all');
-            }}
-            categoryCounts={categoryCounts}
+          {/* Search by Name or Code Bar */}
+          <ProductSearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            resultCount={filteredProducts.length}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
           />
 
-          {/* Controls Bar: Results Count, Tech Filter, Sort */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 my-8 bg-slate-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/10">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white">
-                {filteredProducts.length} mẫu website làm sẵn
-              </span>
-              {searchQuery && (
-                <span className="text-xs text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full font-medium border border-sky-500/20">
-                  Từ khóa: "{searchQuery}"
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Tech filter */}
-              <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                <span className="font-semibold text-slate-400">Công nghệ:</span>
-                <select
-                  value={selectedTech}
-                  onChange={(e) => setSelectedTech(e.target.value)}
-                  className="bg-slate-800/80 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl border border-white/10 outline-none font-semibold cursor-pointer text-xs"
-                >
-                  <option value="all">Tất cả công nghệ</option>
-                  {allTechOptions.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sort Dropdown */}
-              <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                <span className="font-semibold text-slate-400">Sắp xếp:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="bg-slate-800/80 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl border border-white/10 outline-none font-semibold cursor-pointer text-xs"
-                >
-                  <option value="popular">Bán chạy nhất</option>
-                  <option value="newest">Mới cập nhật</option>
-                  <option value="price-asc">Giá: Thấp đến Cao</option>
-                  <option value="price-desc">Giá: Cao đến Thấp</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
+          <div className="pt-6">
           {/* Product Grid */}
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
@@ -289,6 +245,8 @@ export const App: React.FC = () => {
               )}
             </div>
           )}
+        </div>
+
         </div>
 
         {/* 5. Bento Showcase (Cirform style) */}
