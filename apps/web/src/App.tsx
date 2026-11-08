@@ -4,7 +4,6 @@ import {
   Hero,
   CategoryNav, 
   ProductCard, 
-  TrustSection,
   LivePreviewModal, 
   ProductDetailModal, 
   CheckoutModal, 
@@ -290,9 +289,6 @@ export const App: React.FC = () => {
             </div>
           )}
         </div>
-
-        {/* 5. Trust / Advantages Section */}
-        <TrustSection />
       </main>
 
       {/* 7. Modals */}
