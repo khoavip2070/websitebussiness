@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   QrCode, 
@@ -7,9 +7,11 @@ import {
   Download, 
   KeyRound, 
   ShieldCheck, 
-  ArrowRight,
-  Loader2,
-  Sparkles
+  ArrowRight, 
+  ExternalLink,
+  Loader2, 
+  Sparkles,
+  AlertTriangle
 } from 'lucide-react';
 import { WebsiteProduct } from '@sitevault/shared';
 
@@ -39,6 +41,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [orderData, setOrderData] = useState<any>(null);
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
 
   if (!product) return null;
 
@@ -52,9 +55,37 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setTimeout(() => setCopiedField(null), 2000);
   };
 
+  // Real-time automatic polling: checks if bank transfer arrived
+  useEffect(() => {
+    if (step !== 'payment' || !orderData?.data?.orderCode) return;
+    const code = orderData.data.orderCode;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/orders/${code}/status`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.isPaid && json.data) {
+            setOrderResult({
+              orderCode: code,
+              licenseKey: json.data.license.key,
+              downloadUrl: json.data.downloadUrl,
+              amount: product.price
+            });
+            setStep('success');
+            onOrderSuccess();
+          }
+        }
+      } catch (_) {}
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [step, orderData, onOrderSuccess, product.price]);
+
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setVerifyError(null);
 
     try {
       const res = await fetch('/api/orders', {
@@ -101,12 +132,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   const handleVerifyPayment = async () => {
     setIsSubmitting(true);
+    setVerifyError(null);
     const code = orderData?.data?.orderCode;
 
     try {
       const res = await fetch(`/api/orders/${code}/verify`, { method: 'POST' });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.isPaid) {
         setOrderResult({
           orderCode: code,
           licenseKey: data.data.license.key,
@@ -116,18 +148,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         setStep('success');
         onOrderSuccess();
       } else {
-        alert(data.message);
+        setVerifyError(data.message || 'Chưa nhận được giao dịch chuyển khoản từ ngân hàng. Vui lòng quét mã QR chuyển đúng số tiền và nội dung, sau đó thử lại sau ít giây!');
       }
     } catch (err) {
-      // Fallback simulate instant success
-      setOrderResult({
-        orderCode: code || 'ORD-9881',
-        licenseKey: `${product.slug.substring(0, 4).toUpperCase()}-TEST-KEY-2026`,
-        downloadUrl: `/api/download/TEST-KEY`,
-        amount: product.price
-      });
-      setStep('success');
-      onOrderSuccess();
+      setVerifyError('Chưa nhận được xác nhận từ ngân hàng. Vui lòng thử lại sau ít giây!');
     } finally {
       setIsSubmitting(false);
     }
@@ -287,6 +311,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               💡 Mở ứng dụng ngân hàng bất kỳ (Vietcombank, MB, Techcombank, MoMo...) và chọn <strong>Quét mã QR</strong> để thanh toán tức thì.
             </p>
 
+            {/* Live real-time check indicator */}
+            <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+              <span>Hệ thống tự động phát hiện thanh toán ngân hàng (1 - 3s)</span>
+            </div>
+
+            {/* Error notice if money has not arrived yet */}
+            {verifyError && (
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 text-left flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <span>{verifyError}</span>
+              </div>
+            )}
+
             <button
               onClick={handleVerifyPayment}
               disabled={isSubmitting}
@@ -304,6 +342,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </>
               )}
             </button>
+
+            {orderData.payment.checkoutUrl && (
+              <a
+                href={orderData.payment.checkoutUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-2 border border-slate-300 transition"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
+                <span>Mở trang thanh toán cổng PayOS</span>
+              </a>
+            )}
           </div>
         )}
 
