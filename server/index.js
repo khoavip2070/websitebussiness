@@ -8,6 +8,10 @@ import {
   checkSupabaseStatus, 
   seedProductsToSupabase, 
   getProductsFromSupabase, 
+  saveProductToSupabase,
+  deleteProductFromSupabase,
+  getOrdersFromSupabase,
+  getLicensesFromSupabase,
   saveOrderToSupabase, 
   updateOrderInSupabase, 
   saveLicenseToSupabase, 
@@ -254,7 +258,24 @@ function calculateRealStats() {
 // ----------------- API ROUTES ----------------- //
 
 // 1. Products
-app.get('/api/products', (req, res) => {
+app.get('/api/products', async (req, res) => {
+  // Try syncing with Supabase Cloud if tables are ready
+  try {
+    const supaProducts = await getProductsFromSupabase();
+    if (supaProducts && supaProducts.length > 0) {
+      const localMap = new Map((db.products || []).map(p => [p.id, p]));
+      db.products = supaProducts.map(sp => {
+        const local = localMap.get(sp.id);
+        return {
+          ...local,
+          ...sp,
+          downloadFileName: sp.downloadFileName || (local ? local.downloadFileName : '')
+        };
+      });
+      saveDatabase(db);
+    }
+  } catch (_) {}
+
   const { category, search, includeUnpublished } = req.query;
   let items = db.products || [];
 
@@ -346,14 +367,19 @@ app.post('/api/products', async (req, res) => {
   }
 
   if (existingIndex >= 0) {
-    db.products[existingIndex] = {
+    const updated = {
       ...db.products[existingIndex],
       ...productData,
       downloadFileName: generatedZipName,
       fileSize: calculatedSize,
       updatedAt: new Date().toISOString()
     };
+    db.products[existingIndex] = updated;
     saveDatabase(db);
+
+    // Sync update to Supabase Cloud
+    saveProductToSupabase(updated).catch(e => console.error('[Supabase] Sync product error:', e));
+
     return res.json({ success: true, message: 'Đã cập nhật website', data: db.products[existingIndex] });
   } else {
     const newProduct = {
@@ -374,6 +400,10 @@ app.post('/api/products', async (req, res) => {
     };
     db.products.unshift(newProduct);
     saveDatabase(db);
+
+    // Sync new product to Supabase Cloud
+    saveProductToSupabase(newProduct).catch(e => console.error('[Supabase] Sync product error:', e));
+
     return res.status(201).json({ success: true, message: 'Đã thêm website mới thành công', data: newProduct });
   }
 });
@@ -384,11 +414,23 @@ app.delete('/api/products/:id', (req, res) => {
   
   const deleted = db.products.splice(index, 1)[0];
   saveDatabase(db);
+
+  // Sync deletion to Supabase Cloud
+  deleteProductFromSupabase(req.params.id).catch(e => console.error('[Supabase] Delete product error:', e));
+
   res.json({ success: true, message: 'Đã xóa website', data: deleted });
 });
 
 // 2. Orders & Real VietQR Checkout
-app.get('/api/orders', (req, res) => {
+app.get('/api/orders', async (req, res) => {
+  // Sync orders from Supabase Cloud if available
+  try {
+    const supaOrders = await getOrdersFromSupabase();
+    if (supaOrders && supaOrders.length > 0) {
+      db.orders = supaOrders;
+      saveDatabase(db);
+    }
+  } catch (_) {}
   res.json({ success: true, data: db.orders || [] });
 });
 
@@ -638,10 +680,93 @@ app.post('/api/settings', (req, res) => {
   res.json({ success: true, message: 'Đã lưu cấu hình ngân hàng thật', data: db.settings });
 });
 
-// 7. Supabase Cloud Integration Status
+// 7. Supabase Cloud Integration Status & Manual Sync
 app.get('/api/supabase/status', async (req, res) => {
   const status = await checkSupabaseStatus();
   res.json({ success: true, data: status });
+});
+
+app.get('/api/supabase/schema', (req, res) => {
+  const schemaPath = path.join(__dirname, '..', 'supabase', 'schema.sql');
+  if (fs.existsSync(schemaPath)) {
+    const sql = fs.readFileSync(schemaPath, 'utf-8');
+    res.json({ success: true, sql });
+  } else {
+    res.status(404).json({ success: false, message: 'schema.sql không tồn tại' });
+  }
+});
+
+app.post('/api/supabase/sync', async (req, res) => {
+  try {
+    const status = await checkSupabaseStatus();
+    if (!status.connected) {
+      return res.json({ success: false, message: 'Chưa thể kết nối tới Supabase Cloud.', data: status });
+    }
+    if (!status.tablesReady) {
+      return res.json({ 
+        success: false, 
+        message: 'Supabase đã xác thực nhưng chưa có bảng! Vui lòng dán nội dung supabase/schema.sql vào Supabase SQL Editor và nhấn Run.',
+        data: status 
+      });
+    }
+
+    // 1. Sync Products
+    const supaProducts = await getProductsFromSupabase();
+    let productSyncCount = 0;
+    if (supaProducts && supaProducts.length > 0) {
+      const supaIds = new Set(supaProducts.map(p => p.id));
+      const localOnly = (db.products || []).filter(p => !supaIds.has(p.id));
+      for (const lp of localOnly) {
+        await saveProductToSupabase(lp);
+      }
+      db.products = supaProducts;
+      productSyncCount = supaProducts.length;
+    } else if (db.products && db.products.length > 0) {
+      await seedProductsToSupabase(db.products);
+      productSyncCount = db.products.length;
+    }
+
+    // 2. Sync Orders
+    const supaOrders = await getOrdersFromSupabase();
+    let orderSyncCount = 0;
+    if (supaOrders && supaOrders.length > 0) {
+      db.orders = supaOrders;
+      orderSyncCount = supaOrders.length;
+    } else if (db.orders && db.orders.length > 0) {
+      for (const order of db.orders) {
+        await saveOrderToSupabase(order);
+      }
+      orderSyncCount = db.orders.length;
+    }
+
+    // 3. Sync Licenses
+    const supaLicenses = await getLicensesFromSupabase();
+    let licenseSyncCount = 0;
+    if (supaLicenses && supaLicenses.length > 0) {
+      db.licenses = supaLicenses;
+      licenseSyncCount = supaLicenses.length;
+    } else if (db.licenses && db.licenses.length > 0) {
+      for (const lic of db.licenses) {
+        await saveLicenseToSupabase(lic);
+      }
+      licenseSyncCount = db.licenses.length;
+    }
+
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      message: `Đồng bộ thành công: ${productSyncCount} website, ${orderSyncCount} đơn hàng và ${licenseSyncCount} bản quyền license khớp 100% với Supabase Cloud!`,
+      data: {
+        productsCount: productSyncCount,
+        ordersCount: orderSyncCount,
+        licensesCount: licenseSyncCount,
+        status
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Lỗi khi đồng bộ Supabase: ' + err.message });
+  }
 });
 
 // Check Supabase on startup

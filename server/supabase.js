@@ -154,6 +154,105 @@ export async function getProductsFromSupabase() {
   }
 }
 
+// Upsert Product to Supabase
+export async function saveProductToSupabase(p) {
+  if (!supabase) return null;
+  try {
+    const record = {
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      tagline: p.tagline,
+      description: p.description,
+      price: p.price,
+      original_price: p.originalPrice || null,
+      category: p.category,
+      tech_stack: p.techStack || [],
+      thumbnail: p.thumbnail,
+      gallery: p.gallery || [],
+      demo_url: p.demoUrl || '',
+      status: p.status || 'published',
+      download_file_name: p.downloadFileName || '',
+      file_size: p.fileSize || '0 KB',
+      rating: p.rating || 5.0,
+      reviews_count: p.reviewsCount || 0,
+      sales_count: p.salesCount || 0,
+      views_count: p.viewsCount || 0,
+      features: p.features || [],
+      pages_count: p.pagesCount || 1,
+      lighthouse: p.lighthouse || {},
+      included_assets: p.includedAssets || [],
+      tags: p.tags || []
+    };
+    const { error } = await supabase.from('products').upsert(record, { onConflict: 'id' });
+    if (error) console.error('[Supabase] Save product error:', error.message);
+    return !error;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Delete Product from Supabase
+export async function deleteProductFromSupabase(id) {
+  if (!supabase) return null;
+  try {
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) console.error('[Supabase] Delete product error:', error.message);
+    return !error;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Fetch Orders from Supabase
+export async function getOrdersFromSupabase() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (error || !data) return null;
+    return data.map(o => ({
+      id: o.id,
+      orderCode: o.order_code,
+      productId: o.product_id,
+      productTitle: o.product_title,
+      productPrice: Number(o.product_price),
+      customerName: o.customer_name,
+      customerEmail: o.customer_email,
+      customerPhone: o.customer_phone || '',
+      status: o.status,
+      paymentMethod: o.payment_method,
+      transactionId: o.transaction_id,
+      licenseKey: o.license_key,
+      createdAt: o.created_at,
+      completedAt: o.completed_at
+    }));
+  } catch (e) {
+    return null;
+  }
+}
+
+// Fetch Licenses from Supabase
+export async function getLicensesFromSupabase() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.from('licenses').select('*');
+    if (error || !data) return null;
+    return data.map(l => ({
+      id: l.id,
+      key: l.key,
+      orderCode: l.order_code,
+      productId: l.product_id,
+      customerEmail: l.customer_email,
+      downloadCount: l.download_count,
+      maxDownloads: l.max_downloads,
+      isActive: l.is_active,
+      createdAt: l.created_at
+    }));
+  } catch (e) {
+    return null;
+  }
+}
+
 // Save Order to Supabase
 export async function saveOrderToSupabase(order) {
   if (!supabase) return null;
