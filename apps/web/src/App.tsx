@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Navbar, 
   Hero, 
-  SpotlightHero,
   CategoryNav, 
   ProductCard, 
   TrustSection,
@@ -88,7 +87,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     fetchProducts();
 
-    // Tự động đồng bộ liên tục ngầm với phần mềm Desktop mỗi 2 giây
+    // Tá»± Ä‘á»™ng Ä‘á»“ng bá»™ liĂªn tá»¥c ngáº§m vá»›i pháº§n má»m Desktop má»—i 2 giĂ¢y
     const interval = setInterval(() => {
       fetchProducts();
     }, 2000);
@@ -175,6 +174,8 @@ export const App: React.FC = () => {
 
       {/* 2. Hero Section */}
       <Hero
+        productCount={products.length}
+        totalSales={products.reduce((a, p) => a + (p.salesCount || 0), 0)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onSelectCategory={(catId) => {
@@ -186,24 +187,6 @@ export const App: React.FC = () => {
 
       {/* 3. Main Content Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
-        {/* Spotlight Showcase (HeroInspo Featured Website with iPhone & Desktop view) */}
-        {!searchQuery && selectedCategory === 'all' && spotlightProduct && (
-          <SpotlightHero
-            product={spotlightProduct}
-            allProducts={products}
-            onSelectProduct={(p) => setSelectedSpotlightId(p.id)}
-            onPreview={(p) => {
-              recordView(p.id);
-              setPreviewProduct(p);
-            }}
-            onSelect={(p) => {
-              recordView(p.id);
-              setDetailProduct(p);
-            }}
-            onBuy={handleBuy}
-          />
-        )}
-
         <div id="catalog-section" className="scroll-mt-24">
           {/* 4. Category Filter Bar */}
           <CategoryNav
@@ -219,11 +202,11 @@ export const App: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 my-8 bg-slate-900/60 backdrop-blur-xl p-4 rounded-2xl border border-white/10">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-white">
-                {filteredProducts.length} mẫu website làm sẵn
+                {filteredProducts.length} máº«u website lĂ m sáºµn
               </span>
               {searchQuery && (
                 <span className="text-xs text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full font-medium border border-sky-500/20">
-                  Từ khóa: "{searchQuery}"
+                  Tá»« khĂ³a: "{searchQuery}"
                 </span>
               )}
             </div>
@@ -231,13 +214,13 @@ export const App: React.FC = () => {
             <div className="flex flex-wrap items-center gap-3">
               {/* Tech filter */}
               <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                <span className="font-semibold text-slate-400">Công nghệ:</span>
+                <span className="font-semibold text-slate-400">CĂ´ng nghá»‡:</span>
                 <select
                   value={selectedTech}
                   onChange={(e) => setSelectedTech(e.target.value)}
                   className="bg-slate-800/80 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl border border-white/10 outline-none font-semibold cursor-pointer text-xs"
                 >
-                  <option value="all">Tất cả công nghệ</option>
+                  <option value="all">Táº¥t cáº£ cĂ´ng nghá»‡</option>
                   {allTechOptions.map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
@@ -246,16 +229,16 @@ export const App: React.FC = () => {
 
               {/* Sort Dropdown */}
               <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                <span className="font-semibold text-slate-400">Sắp xếp:</span>
+                <span className="font-semibold text-slate-400">Sáº¯p xáº¿p:</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
                   className="bg-slate-800/80 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl border border-white/10 outline-none font-semibold cursor-pointer text-xs"
                 >
-                  <option value="popular">Bán chạy nhất</option>
-                  <option value="newest">Mới cập nhật</option>
-                  <option value="price-asc">Giá: Thấp đến Cao</option>
-                  <option value="price-desc">Giá: Cao đến Thấp</option>
+                  <option value="popular">BĂ¡n cháº¡y nháº¥t</option>
+                  <option value="newest">Má»›i cáº­p nháº­t</option>
+                  <option value="price-asc">GiĂ¡: Tháº¥p Ä‘áº¿n Cao</option>
+                  <option value="price-desc">GiĂ¡: Cao Ä‘áº¿n Tháº¥p</option>
                 </select>
               </div>
             </div>
@@ -263,7 +246,7 @@ export const App: React.FC = () => {
 
           {/* Product Grid */}
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
               {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -284,12 +267,12 @@ export const App: React.FC = () => {
             <div className="py-20 text-center bg-slate-900/40 rounded-3xl border border-dashed border-white/15 max-w-lg mx-auto">
               <SearchX className="w-12 h-12 text-slate-500 mx-auto mb-3" />
               <h3 className="text-base font-bold text-white">
-                {products.length === 0 ? 'Kho website đang được cập nhật' : 'Không tìm thấy website phù hợp'}
+                {products.length === 0 ? 'Kho website Ä‘ang Ä‘Æ°á»£c cáº­p nháº­t' : 'KhĂ´ng tĂ¬m tháº¥y website phĂ¹ há»£p'}
               </h3>
               <p className="text-xs text-slate-400 mt-1 mb-4">
                 {products.length === 0
-                  ? 'Hiện tại các mẫu website đang được làm mới hoặc đã gỡ. Vui lòng quay lại sau!'
-                  : 'Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc danh mục.'}
+                  ? 'Hiá»‡n táº¡i cĂ¡c máº«u website Ä‘ang Ä‘Æ°á»£c lĂ m má»›i hoáº·c Ä‘Ă£ gá»¡. Vui lĂ²ng quay láº¡i sau!'
+                  : 'Thá»­ tĂ¬m kiáº¿m vá»›i tá»« khĂ³a khĂ¡c hoáº·c xĂ³a bá»™ lá»c danh má»¥c.'}
               </p>
               {products.length > 0 && (
                 <button
@@ -300,7 +283,7 @@ export const App: React.FC = () => {
                   }}
                   className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors"
                 >
-                  Xem lại tất cả mẫu
+                  Xem láº¡i táº¥t cáº£ máº«u
                 </button>
               )}
             </div>
@@ -351,3 +334,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+

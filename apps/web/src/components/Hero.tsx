@@ -1,116 +1,89 @@
 import React from 'react';
-import { Zap, CheckCircle2, Shield, Eye, Download, Code2, Search, Sparkles, Smartphone, Layers } from 'lucide-react';
-import { Particles3D } from './Particles3D';
+import { ArrowRight, Zap, ShieldCheck, Download, Search } from 'lucide-react';
 
 interface HeroProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSelectCategory?: (id: any) => void;
+  productCount?: number;
+  totalSales?: number;
 }
 
 export const Hero: React.FC<HeroProps> = ({
   searchQuery,
   onSearchChange,
-  onSelectCategory
+  productCount = 0,
+  totalSales = 0
 }) => {
-  const quickTags = [
-    { label: 'Bento Grid', category: 'landing-page' },
-    { label: 'Dark Mode', category: 'saas' },
-    { label: 'Minimalist', category: 'portfolio' },
-    { label: 'Micro-SaaS & AI', category: 'saas' },
-    { label: 'Web Bán Hàng', category: 'ecommerce' },
-    { label: 'Spa & Thẩm Mỹ', category: 'services' },
-    { label: 'Cafe & F&B', category: 'restaurant' }
-  ];
+  const scrollToCatalog = () => {
+    const el = document.getElementById('catalog-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <section className="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-24 border-b border-white/10 select-none">
-      {/* 1. 3D Particle Space Galaxy Canvas */}
-      <Particles3D className="z-0 opacity-80" />
+    <section className="relative overflow-hidden border-b border-white/10 select-none">
+      {/* Light streaks background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_40%,rgba(37,99,235,0.25),transparent_60%)]" />
+        <div className="absolute left-0 right-0 top-[48%] h-[2px] bg-gradient-to-r from-transparent via-sky-400 to-fuchsia-400 blur-[1px] opacity-90" />
+        <div className="absolute left-0 right-0 top-[48%] h-24 -translate-y-1/2 bg-gradient-to-r from-fuchsia-500/0 via-blue-500/25 to-sky-400/0 blur-3xl" />
+        <div className="absolute -left-20 top-[40%] w-[60%] h-[2px] rotate-[-8deg] bg-gradient-to-r from-transparent via-fuchsia-400/80 to-transparent blur-[2px]" />
+        <div className="absolute -right-10 top-[58%] w-[55%] h-[2px] rotate-[10deg] bg-gradient-to-r from-transparent via-sky-300/80 to-transparent blur-[2px]" />
+      </div>
 
-      {/* 2. 3D Perspective Cyber-Grid Floor */}
-      <div 
-        style={{
-          transform: 'perspective(600px) rotateX(65deg) translateY(-80px)',
-          backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(ellipse at center, black, transparent 70%)'
-        }}
-        className="absolute inset-x-0 bottom-0 h-[450px] pointer-events-none -z-10"
-      />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 grid lg:grid-cols-2 gap-12 items-center">
+        {/* Left: headline */}
+        <div>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold text-white tracking-tight leading-[1.05]">
+            Website làm sẵn
+            <br />
+            <span
+              className="italic font-normal text-sky-200"
+              style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
+            >
+              sẵn sàng để bán
+            </span>
+          </h1>
+          <p className="mt-6 text-slate-400 text-base sm:text-lg max-w-lg leading-relaxed">
+            Chọn mẫu, xem thử trực tiếp, thanh toán VietQR và nhận file .ZIP cùng bản quyền ngay.
+          </p>
 
-      {/* 3. Ambient background glow pulses */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 blur-[140px] pointer-events-none -z-10" />
-
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        {/* HeroInspo Glowing Pill Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 via-indigo-500/15 to-purple-500/10 border border-blue-500/25 text-blue-300 text-xs font-semibold mb-6 shadow-lg shadow-blue-500/10 backdrop-blur-md hover:scale-105 transition-transform cursor-default">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>HEROINSPO SHOWCASE • KHO WEBSITE MINI & HERO SECTIONS CHUẨN CAO CẤP</span>
-        </div>
-
-        {/* Heading */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.15] mb-6">
-          Kho Website Mini & Hero Sections <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-200 to-sky-300">
-            Tối Ưu Tỷ Lệ Chuyển Đổi & Bán Hàng
-          </span>
-        </h1>
-
-        {/* Description */}
-        <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed font-normal">
-          Dành riêng cho Freelancer, Chủ shop, Startup & Doanh nghiệp vừa và nhỏ. Tuyển chọn các mẫu website phong cách quốc tế, xem thử trực tiếp đa thiết bị (Desktop & iPhone), thanh toán VietQR nhận ngay mã bản quyền và file ZIP hoàn chỉnh sau 30 giây.
-        </p>
-
-        {/* 3D Search Bar directly inside Hero */}
-        <div className="max-w-2xl mx-auto mb-6 relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/30 to-indigo-500/30 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
-          <div className="relative">
-            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-sky-400 transition-colors" />
+          <div className="mt-8 relative max-w-md">
+            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Tìm theo phong cách: Bento Grid, Dark Mode, SaaS, Spa, Cafe, Shop, Portfolio..."
-              className="w-full pl-12 pr-28 py-3.5 bg-slate-900/90 text-white placeholder-slate-500 border border-white/15 focus:border-blue-500 rounded-2xl shadow-2xl backdrop-blur-xl outline-none text-sm transition-all"
+              placeholder="Tìm mẫu website..."
+              className="w-full pl-11 pr-4 py-3 bg-white/5 text-white placeholder-slate-500 border border-white/15 focus:border-sky-400 rounded-full outline-none text-sm backdrop-blur-xl transition-colors"
             />
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 text-[11px] font-mono text-slate-400 border border-white/10">
-              <kbd>Ctrl</kbd> + <kbd>K</kbd>
-            </div>
           </div>
-        </div>
 
-        {/* Quick Tag Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-10 text-xs">
-          <span className="text-slate-500 font-medium">Phong cách & Ngành:</span>
-          {quickTags.map((tag, idx) => (
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
-              key={idx}
-              onClick={() => onSelectCategory && onSelectCategory(tag.category)}
-              className="px-3 py-1 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-slate-300 hover:text-white transition-all hover:scale-105 active:scale-95 flex items-center gap-1 font-medium"
+              onClick={scrollToCatalog}
+              className="px-6 py-3 rounded-full bg-white text-slate-950 text-sm font-bold hover:bg-slate-200 transition-colors flex items-center gap-2"
             >
-              <span>#{tag.label}</span>
+              Xem tất cả mẫu <ArrowRight className="w-4 h-4" />
             </button>
-          ))}
+          </div>
         </div>
 
-        {/* Value props pill row */}
-        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm font-medium text-slate-300">
-          <div className="flex items-center gap-2">
-            <Smartphone className="w-4 h-4 text-sky-400" />
-            <span>Mô phỏng Mobile iPhone & Desktop</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span>100% Điểm Tốc Độ Google Lighthouse</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <span>Bản quyền thương mại trọn đời</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Download className="w-4 h-4 text-indigo-400" />
-            <span>Tải ngay file .ZIP sau quét VietQR</span>
+        {/* Right: glass stat cards */}
+        <div className="hidden lg:flex justify-end">
+          <div className="w-80 space-y-4">
+            <div className="rounded-2xl border border-white/15 bg-white/5 backdrop-blur-xl p-5 shadow-2xl shadow-blue-900/30">
+              <div className="text-xs text-slate-400">Mẫu website đang bán</div>
+              <div className="text-5xl font-semibold text-white mt-1">{productCount}</div>
+              <div className="mt-3 inline-block px-3 py-1 rounded-full bg-sky-400/15 text-sky-200 text-[11px] font-semibold">
+                {totalSales} lượt mua
+              </div>
+            </div>
+            <div className="rounded-2xl border border-white/15 bg-white/5 backdrop-blur-xl p-5 space-y-3 text-sm text-slate-200">
+              <div className="flex items-center gap-2.5"><Zap className="w-4 h-4 text-amber-300" /> Tốc độ Lighthouse 95+</div>
+              <div className="flex items-center gap-2.5"><ShieldCheck className="w-4 h-4 text-emerald-300" /> Bản quyền thương mại trọn đời</div>
+              <div className="flex items-center gap-2.5"><Download className="w-4 h-4 text-sky-300" /> Tải .ZIP ngay sau thanh toán</div>
+            </div>
           </div>
         </div>
       </div>

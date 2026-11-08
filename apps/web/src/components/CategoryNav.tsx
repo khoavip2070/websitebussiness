@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { 
   Layers, 
   Flame, 
@@ -18,11 +18,11 @@ interface CategoryNavProps {
 }
 
 const CATEGORIES = [
-  { id: 'all' as CategoryId, label: 'Tất cả mẫu', icon: Layers },
+  { id: 'all' as CategoryId, label: 'Táº¥t cáº£ máº«u', icon: Layers },
   { id: 'saas' as CategoryId, label: 'Micro-SaaS & AI', icon: Cpu },
-  { id: 'ecommerce' as CategoryId, label: 'Web Bán Hàng', icon: ShoppingBag },
-  { id: 'services' as CategoryId, label: 'Spa & Dịch Vụ', icon: Sparkles },
-  { id: 'restaurant' as CategoryId, label: 'Cafe & Nhà Hàng', icon: Coffee },
+  { id: 'ecommerce' as CategoryId, label: 'Web BĂ¡n HĂ ng', icon: ShoppingBag },
+  { id: 'services' as CategoryId, label: 'Spa & Dá»‹ch Vá»¥', icon: Sparkles },
+  { id: 'restaurant' as CategoryId, label: 'Cafe & NhĂ  HĂ ng', icon: Coffee },
   { id: 'landing-page' as CategoryId, label: 'Landing Page', icon: Flame },
   { id: 'portfolio' as CategoryId, label: 'Portfolio & Agency', icon: Briefcase }
 ];
@@ -45,9 +45,9 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
               <button
                 key={cat.id}
                 onClick={() => onSelectCategory(cat.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 border ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 border ${
                   isSelected
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500/50 shadow-lg shadow-blue-500/25'
+                    ? 'bg-white text-slate-950 border-white'
                     : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -68,3 +68,4 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
     </div>
   );
 };
+

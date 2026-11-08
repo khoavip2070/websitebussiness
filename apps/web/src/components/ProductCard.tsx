@@ -1,7 +1,6 @@
 import React from 'react';
-import { Eye, Zap, Gauge, ArrowRight, HardDrive, ShoppingBag, Sparkles } from 'lucide-react';
+import { Eye, ShoppingBag } from 'lucide-react';
 import { WebsiteProduct } from '@sitevault/shared';
-import { TiltedCard3D } from './TiltedCard3D';
 
 interface ProductCardProps {
   product: WebsiteProduct;
@@ -16,198 +15,76 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onSelect,
   onBuy
 }) => {
-  const formatVnd = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
-  };
+  const formatVnd = (amount: number) =>
+    new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
 
-  const discountPercent = product.originalPrice
+  const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
   return (
-    <TiltedCard3D maxTilt={8} glare={true} className="h-full">
-      <div className="group bg-slate-900/80 hover:bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-white/10 hover:border-sky-500/50 hover:shadow-[0_20px_50px_rgba(56,189,248,0.15)] transition-all duration-300 flex flex-col overflow-hidden h-full select-none">
-        {/* 1. macOS Browser Window Frame */}
-        <div 
-          style={{ transform: 'translateZ(20px)' }}
-          className="px-3.5 py-2.5 bg-slate-950/90 border-b border-white/5 flex items-center justify-between gap-2"
-        >
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/90 inline-block shadow-sm shadow-rose-500/50"></span>
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/90 inline-block shadow-sm shadow-amber-500/50"></span>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/90 inline-block shadow-sm shadow-emerald-500/50"></span>
-          </div>
-
-          <div className="flex-1 max-w-[190px] mx-auto bg-slate-800/80 rounded-md px-2 py-0.5 text-[10px] font-mono text-slate-300 flex items-center justify-center gap-1 truncate border border-white/5">
-            <span className="text-emerald-400 text-[9px]">●</span>
-            <span className="truncate">{product.slug}.kweb.vn</span>
-          </div>
-
-          <span className="text-[10px] font-bold text-sky-400 uppercase tracking-wider font-mono">
-            {product.category}
+    <div className="group flex flex-col rounded-2xl bg-white/[0.04] border border-white/10 hover:border-sky-400/50 hover:bg-white/[0.06] transition-all duration-300 overflow-hidden">
+      {/* Thumbnail */}
+      <div
+        className="relative aspect-[16/10] overflow-hidden bg-slate-950 cursor-pointer"
+        onClick={() => onSelect(product)}
+      >
+        <img
+          src={product.thumbnail}
+          alt={product.title}
+          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+        />
+        {discount > 0 && (
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white text-slate-950 text-[11px] font-bold">
+            -{discount}%
           </span>
-        </div>
-
-        {/* 2. Interactive Thumbnail Container with Quick Action Overlay */}
-        <div
-          style={{ transform: 'translateZ(14px)' }}
-          className="relative aspect-[16/10] overflow-hidden bg-slate-950 cursor-pointer"
-          onClick={() => onSelect(product)}
-        >
-          <img
-            src={product.thumbnail}
-            alt={product.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            loading="lazy"
-          />
-
-          {/* Badges on Top */}
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 z-10">
-            {discountPercent > 0 && (
-              <span className="px-2 py-0.5 rounded-md bg-rose-600/90 backdrop-blur-md text-[10px] font-bold text-white shadow-sm shadow-rose-600/40">
-                -{discountPercent}%
-              </span>
-            )}
-          </div>
-
-          {/* Physical File Size badge */}
-          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900/90 border border-white/10 backdrop-blur-md text-emerald-400 text-[10px] font-mono font-bold shadow-sm z-10">
-            <HardDrive className="w-3 h-3 text-emerald-400" />
-            <span>{product.fileSize || '15 MB'}</span>
-          </div>
-
-          {/* Floating Quick Action Overlay on Hover */}
-          <div 
-            style={{ transform: 'translateZ(35px)' }}
-            className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2.5 backdrop-blur-[2px] z-20"
+        )}
+        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPreview(product);
+            }}
+            className="px-4 py-2 rounded-full bg-white text-slate-950 text-xs font-bold flex items-center gap-1.5"
           >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onPreview(product);
-              }}
-              className="px-3 py-1.5 rounded-xl bg-white text-slate-950 text-xs font-bold hover:bg-slate-200 transition-colors flex items-center gap-1.5 shadow-xl shadow-black/40"
-            >
-              <Eye className="w-3.5 h-3.5 text-blue-600" />
-              <span>Xem Thử Live</span>
-            </button>
-
-            {onBuy && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onBuy(product);
-                }}
-                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-xl shadow-blue-500/40"
-              >
-                <Zap className="w-3.5 h-3.5 fill-white" />
-                <span>Mua Bản Quyền</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* 3. Content Details */}
-        <div 
-          style={{ transform: 'translateZ(18px)' }}
-          className="p-4 sm:p-5 flex-1 flex flex-col justify-between"
-        >
-          <div>
-            {/* Tech Stack Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
-              {product.techStack.slice(0, 3).map((tech, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300"
-                >
-                  {tech}
-                </span>
-              ))}
-              {product.techStack.length > 3 && (
-                <span className="text-[10px] text-slate-500 font-mono">
-                  +{product.techStack.length - 3}
-                </span>
-              )}
-            </div>
-
-            {/* Title */}
-            <h3
-              onClick={() => onSelect(product)}
-              className="text-sm sm:text-base font-bold text-white hover:text-sky-400 transition-colors line-clamp-1 cursor-pointer mb-1.5"
-            >
-              {product.title}
-            </h3>
-
-            {/* Tagline */}
-            <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-4">
-              {product.tagline}
-            </p>
-          </div>
-
-          <div>
-            {/* Real Quality & Traffic Metrics */}
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-3.5 pb-3 border-b border-white/10">
-              <div className="flex items-center gap-1 text-emerald-400 font-bold text-[11px]">
-                <Gauge className="w-3.5 h-3.5" />
-                <span>{product.lighthouse?.performance || 99}/100</span>
-              </div>
-              <div className="flex items-center gap-1 text-slate-300 font-medium text-[11px]">
-                <Eye className="w-3.5 h-3.5 text-sky-400" />
-                <span>{product.viewsCount ?? 0} xem</span>
-              </div>
-              <div className="flex items-center gap-1 text-slate-300 text-[11px]">
-                <ShoppingBag className="w-3.5 h-3.5 text-indigo-400" />
-                <span>{product.salesCount ?? 0} đã bán</span>
-              </div>
-            </div>
-
-            {/* Price & Action Row */}
-            <div 
-              style={{ transform: 'translateZ(26px)' }}
-              className="flex items-center justify-between gap-3"
-            >
-              <div>
-                <div className="text-base sm:text-lg font-black text-white">
-                  {formatVnd(product.price)}
-                </div>
-                {product.originalPrice && (
-                  <div className="text-[11px] text-slate-500 line-through">
-                    {formatVnd(product.originalPrice)}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => onPreview(product)}
-                  title="Xem thử live"
-                  className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-slate-300 hover:text-white transition-colors text-xs font-semibold flex items-center gap-1"
-                >
-                  <Eye className="w-3.5 h-3.5 text-sky-400" />
-                  <span className="hidden sm:inline">Live</span>
-                </button>
-                {onBuy ? (
-                  <button
-                    onClick={() => onBuy(product)}
-                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/25 flex items-center gap-1 active:scale-95"
-                  >
-                    <Zap className="w-3.5 h-3.5 fill-white" />
-                    <span>Mua Ngay</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => onSelect(product)}
-                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex items-center gap-1"
-                  >
-                    <span>Chi tiết</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+            <Eye className="w-3.5 h-3.5" /> Xem thử
+          </button>
         </div>
       </div>
-    </TiltedCard3D>
+
+      {/* Info */}
+      <div className="p-5 flex flex-col flex-1">
+        <div className="text-[11px] uppercase tracking-wider text-sky-300/80 font-semibold mb-1.5">
+          {product.category}
+        </div>
+        <h3
+          onClick={() => onSelect(product)}
+          className="text-base font-semibold text-white line-clamp-1 cursor-pointer hover:text-sky-300 transition-colors"
+        >
+          {product.title}
+        </h3>
+        <p className="text-xs text-slate-400 line-clamp-2 mt-1.5 leading-relaxed">
+          {product.tagline}
+        </p>
+
+        <div className="mt-auto pt-5 flex items-end justify-between gap-3">
+          <div>
+            <div className="text-lg font-semibold text-white">{formatVnd(product.price)}</div>
+            {product.originalPrice ? (
+              <div className="text-[11px] text-slate-500 line-through">
+                {formatVnd(product.originalPrice)}
+              </div>
+            ) : null}
+          </div>
+          <button
+            onClick={() => (onBuy ? onBuy(product) : onSelect(product))}
+            className="px-4 py-2 rounded-full bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-colors flex items-center gap-1.5"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" /> Mua ngay
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
