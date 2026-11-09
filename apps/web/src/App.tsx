@@ -440,13 +440,16 @@ export const App: React.FC = () => {
         onBuy={handleBuy}
       />
 
-      <CheckoutModal
-        product={checkoutProduct}
-        onClose={() => setCheckoutProduct(null)}
-        onOrderSuccess={() => {
-          fetchProducts();
-        }}
-      />
+      {checkoutProduct && (
+        <CheckoutModal
+          key={checkoutProduct.id}
+          product={checkoutProduct}
+          onClose={() => setCheckoutProduct(null)}
+          onOrderSuccess={() => {
+            fetchProducts();
+          }}
+        />
+      )}
 
       <LicenseLookupModal
         isOpen={isLicenseModalOpen}

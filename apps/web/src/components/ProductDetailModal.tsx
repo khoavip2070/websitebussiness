@@ -127,8 +127,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     <span>Demo</span>
                   </button>
                   <button
+                    type="button"
                     onClick={() => onBuy(product)}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-500/25 flex items-center gap-1.5"
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-500/25 flex items-center gap-1.5 cursor-pointer active:scale-95"
                   >
                     <Zap className="w-3.5 h-3.5 fill-white" />
                     <span>Mua Ngay</span>

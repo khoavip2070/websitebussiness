@@ -118,8 +118,9 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
           </a>
 
           <button
+            type="button"
             onClick={() => onBuy(product)}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/30"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/30 cursor-pointer active:scale-95"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             <span>Mua bản quyền {formatVnd(product.price)}</span>

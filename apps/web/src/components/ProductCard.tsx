@@ -44,11 +44,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         )}
         <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               onPreview(product);
             }}
-            className="px-4 py-2 rounded-full bg-white text-slate-950 text-xs font-bold flex items-center gap-1.5"
+            style={{ transform: 'translateZ(30px)' }}
+            className="relative z-30 px-4 py-2 rounded-full bg-white hover:bg-slate-100 text-slate-950 text-xs font-bold flex items-center gap-1.5 cursor-pointer select-none pointer-events-auto shadow-lg active:scale-95 transition-all"
           >
             <Eye className="w-3.5 h-3.5" /> Xem thử
           </button>
@@ -80,8 +83,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             ) : null}
           </div>
           <button
-            onClick={() => (onBuy ? onBuy(product) : onSelect(product))}
-            className="px-4 py-2 rounded-full bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-colors flex items-center gap-1.5"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (onBuy) onBuy(product);
+              else onSelect(product);
+            }}
+            style={{ transform: 'translateZ(30px)' }}
+            className="relative z-30 px-4 py-2 rounded-full bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-sky-500/20 hover:shadow-sky-500/40 active:scale-95 flex items-center gap-1.5 cursor-pointer select-none pointer-events-auto"
           >
             <ShoppingBag className="w-3.5 h-3.5" /> Mua ngay
           </button>

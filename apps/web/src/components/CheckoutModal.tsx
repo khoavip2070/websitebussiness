@@ -47,6 +47,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [hasNotified, setHasNotified] = useState(false);
   const [isNotifying, setIsNotifying] = useState(false);
 
+  // Reset state whenever a different product is opened
+  useEffect(() => {
+    if (product) {
+      setStep('info');
+      setOrderData(null);
+      setOrderResult(null);
+      setVerifyError(null);
+      setHasNotified(false);
+      setIsSubmitting(false);
+    }
+  }, [product?.id]);
+
   if (!product) return null;
 
   const formatVnd = (amount: number) => {
@@ -91,6 +103,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!customerName.trim() || !customerEmail.trim()) {
+      setVerifyError('Vui lòng điền Họ tên và Email để nhận mã bản quyền!');
+      return;
+    }
     setIsSubmitting(true);
     setVerifyError(null);
     setHasNotified(false);
@@ -263,10 +279,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               />
             </div>
 
+            {verifyError && (
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 text-left flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <span>{verifyError}</span>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-500/25 flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

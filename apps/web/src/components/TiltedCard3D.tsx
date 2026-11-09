@@ -83,7 +83,7 @@ export const TiltedCard3D: React.FC<TiltedCard3DProps> = ({
               background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, ${glarePos.opacity}), transparent 60%)`,
               pointerEvents: 'none'
             }}
-            className="absolute inset-0 rounded-2xl transition-opacity duration-300 z-30"
+            className="absolute inset-0 rounded-2xl transition-opacity duration-300 z-10 pointer-events-none select-none"
           />
         )}
       </div>
