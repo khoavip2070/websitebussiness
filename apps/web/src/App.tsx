@@ -23,7 +23,10 @@ import {
   ArrowRight, 
   Sparkles, 
   ShoppingBag,
-  Layers
+  Layers,
+  Home,
+  KeyRound,
+  ShieldCheck
 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
@@ -219,7 +222,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#070A11] text-slate-100 selection:bg-sky-500/30 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#070A11] text-slate-100 selection:bg-sky-500/30 selection:text-white pb-20 sm:pb-0">
       {/* 1. Header Navigation Bar */}
       <Navbar
         currentPage={currentPage}
@@ -474,6 +477,60 @@ export const App: React.FC = () => {
         onOpenLicenseModal={() => navigateTo('license')}
         onOpenAdminModal={() => setIsAdminModalOpen(true)}
       />
+
+      {/* 5. Mobile Floating Bottom Navigation Dock (Thumb-friendly UX on iOS & Android) */}
+      <nav className="sm:hidden fixed bottom-3 inset-x-3 z-40 bg-[#0A0E1A]/95 backdrop-blur-2xl border border-white/15 rounded-2xl p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center justify-around select-none">
+        <button
+          onClick={() => navigateTo('home')}
+          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all cursor-pointer ${
+            currentPage === 'home'
+              ? 'bg-white text-slate-950 font-bold shadow-md'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Home className="w-4 h-4" />
+          <span className="text-[10px] mt-0.5 font-semibold">Trang Chủ</span>
+        </button>
+
+        <button
+          onClick={() => navigateTo('store')}
+          className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all cursor-pointer ${
+            currentPage === 'store'
+              ? 'bg-white text-slate-950 font-bold shadow-md'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <ShoppingBag className="w-4 h-4" />
+          <span className="text-[10px] mt-0.5 font-semibold">Kho Website</span>
+          {products.length > 0 && (
+            <span className={`absolute top-0.5 right-2 px-1 rounded-full text-[9px] font-bold ${
+              currentPage === 'store' ? 'bg-slate-900 text-white' : 'bg-sky-500 text-slate-950'
+            }`}>
+              {products.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => navigateTo('license')}
+          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all cursor-pointer ${
+            currentPage === 'license'
+              ? 'bg-white text-slate-950 font-bold shadow-md'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <KeyRound className="w-4 h-4" />
+          <span className="text-[10px] mt-0.5 font-semibold">Tra Cứu</span>
+        </button>
+
+        <button
+          onClick={() => setIsAdminModalOpen(true)}
+          className="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer"
+        >
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span className="text-[10px] mt-0.5 font-semibold">Admin</span>
+        </button>
+      </nav>
     </div>
   );
 };

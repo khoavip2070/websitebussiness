@@ -40,33 +40,33 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Center: Multi-page Navigation Menu */}
-        <nav className="flex items-center gap-1.5 p-1 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-xl">
+        {/* Center: Multi-page Navigation Menu (Responsive) */}
+        <nav className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-xl">
           <button
             onClick={() => onNavigate('home')}
-            className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
               currentPage === 'home'
                 ? 'bg-white text-slate-950 shadow-md shadow-white/20'
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <Home className="w-3.5 h-3.5" />
-            <span>Trang Chủ</span>
+            <span className="hidden xs:inline sm:inline">Trang Chủ</span>
           </button>
 
           <button
             onClick={() => onNavigate('store')}
-            className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
               currentPage === 'store'
                 ? 'bg-white text-slate-950 shadow-md shadow-white/20'
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Kho Website</span>
+            <span className="hidden xs:inline sm:inline">Kho Website</span>
             {productCount > 0 && (
               <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                currentPage === 'store' ? 'bg-slate-950 text-white' : 'bg-white/10 text-slate-400'
+                currentPage === 'store' ? 'bg-slate-950 text-white' : 'bg-white/10 text-slate-300'
               }`}>
                 {productCount}
               </span>
@@ -75,14 +75,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => onNavigate('license')}
-            className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
               currentPage === 'license'
                 ? 'bg-white text-slate-950 shadow-md shadow-white/20'
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
             }`}
           >
             <KeyRound className="w-3.5 h-3.5" />
-            <span>Tra Cứu License</span>
+            <span className="hidden xs:inline sm:inline">Tra Cứu</span>
           </button>
         </nav>
 

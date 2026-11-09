@@ -120,15 +120,15 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
           <button
             type="button"
             onClick={() => onBuy(product)}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/30 cursor-pointer active:scale-95"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/30 cursor-pointer active:scale-95 whitespace-nowrap"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Mua bản quyền {formatVnd(product.price)}</span>
+            <span><span className="hidden sm:inline">Mua bản quyền </span>{formatVnd(product.price)}</span>
           </button>
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors ml-2"
+            className="p-1.5 sm:p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors ml-1 sm:ml-2 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

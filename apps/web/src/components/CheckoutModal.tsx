@@ -224,7 +224,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
         {/* Step 1: Info Form */}
         {step === 'info' && (
-          <form onSubmit={handleCreateOrder} className="p-6 space-y-4">
+          <form onSubmit={handleCreateOrder} className="p-4 sm:p-6 space-y-4">
             <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 flex items-center justify-between">
               <div>
                 <span className="text-xs font-semibold text-blue-700">Tổng thanh toán:</span>
@@ -308,18 +308,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
         {/* Step 2: VietQR Payment */}
         {step === 'payment' && orderData && (
-          <div className="p-6 space-y-5 text-center">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-center">
             {/* QR Image Box */}
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block shadow-inner">
+            <div className="bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200 inline-block shadow-inner max-w-full">
               <img
                 src={orderData.payment.qrUrl}
                 alt="VietQR Code"
-                className="w-56 h-56 mx-auto rounded-lg object-contain mix-blend-multiply"
+                className="w-48 h-48 sm:w-56 sm:h-56 mx-auto rounded-lg object-contain mix-blend-multiply"
               />
             </div>
 
             {/* Transfer details table */}
-            <div className="text-left text-xs space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <div className="text-left text-xs space-y-2 bg-slate-50 p-3.5 sm:p-4 rounded-2xl border border-slate-200">
               <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
                 <span className="text-slate-500">Ngân hàng:</span>
                 <span className="font-bold text-slate-800">{orderData.payment.bankName}</span>
@@ -330,7 +330,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <span>{orderData.payment.bankAccount}</span>
                   <button
                     onClick={() => copyToClipboard(orderData.payment.bankAccount, 'stk')}
-                    className="p-1 hover:text-blue-600"
+                    className="p-1 hover:text-blue-600 cursor-pointer"
                     title="Sao chép"
                   >
                     <Copy className="w-3.5 h-3.5" />
@@ -342,13 +342,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <span className="text-slate-500">Số tiền:</span>
                 <span className="font-black text-blue-700 text-sm">{formatVnd(orderData.payment.amount)}</span>
               </div>
-              <div className="flex justify-between items-center py-1">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-1 gap-1">
                 <span className="text-slate-500 font-semibold text-rose-600">Nội dung chuyển khoản (bắt buộc):</span>
-                <div className="flex items-center gap-1.5 font-black text-rose-600 font-mono text-sm bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                <div className="flex items-center justify-between sm:justify-end gap-1.5 font-black text-rose-600 font-mono text-sm bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
                   <span>{orderData.payment.content}</span>
                   <button
                     onClick={() => copyToClipboard(orderData.payment.content, 'content')}
-                    className="p-1 hover:text-rose-800"
+                    className="p-1 hover:text-rose-800 cursor-pointer"
                     title="Sao chép nội dung"
                   >
                     <Copy className="w-3.5 h-3.5" />
@@ -418,7 +418,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
         {/* Step 3: Success Screen */}
         {step === 'success' && orderResult && (
-          <div className="p-6 space-y-6 text-center">
+          <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 text-center">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
               <Sparkles className="w-8 h-8 text-emerald-600" />
             </div>

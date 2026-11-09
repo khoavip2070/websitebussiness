@@ -61,7 +61,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-6 overflow-y-auto space-y-6">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
           {/* Main Top Banner */}
           <div className="grid md:grid-cols-2 gap-6 items-center">
             <div className="rounded-2xl overflow-hidden aspect-[16/10] bg-slate-950 border border-white/10 shadow-sm relative group">
@@ -71,8 +71,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <button
+                type="button"
                 onClick={() => onPreview(product)}
-                className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] flex items-center justify-center gap-2 text-white font-bold text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px] flex items-center justify-center gap-2 text-white font-bold text-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
               >
                 <Eye className="w-4 h-4 text-sky-400" />
                 <span>Xem Live Demo Tương Tác</span>
@@ -88,18 +89,18 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </p>
 
               {/* Quick specs */}
-              <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10 text-xs mb-4">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl bg-white/5 border border-white/10 text-xs mb-4">
                 <div>
                   <span className="text-slate-400">Công nghệ:</span>
-                  <div className="font-semibold text-slate-200 mt-0.5">{product.techStack.join(', ')}</div>
+                  <div className="font-semibold text-slate-200 mt-0.5 truncate">{product.techStack.join(', ')}</div>
                 </div>
                 <div>
                   <span className="text-slate-400">Dung lượng:</span>
-                  <div className="font-semibold text-slate-200 mt-0.5">{product.fileSize} (File zip)</div>
+                  <div className="font-semibold text-slate-200 mt-0.5">{product.fileSize}</div>
                 </div>
                 <div>
                   <span className="text-slate-400">Số trang:</span>
-                  <div className="font-semibold text-slate-200 mt-0.5">{product.pagesCount} pages</div>
+                  <div className="font-semibold text-slate-200 mt-0.5">{product.pagesCount} trang</div>
                 </div>
                 <div>
                   <span className="text-slate-400">Đã bán:</span>
@@ -107,8 +108,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* Pricing Box */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-blue-600/10 border border-blue-500/20">
+              {/* Pricing Box (Responsive for mobile & tablet) */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5 p-4 rounded-2xl bg-blue-600/10 border border-blue-500/20">
                 <div>
                   <div className="text-[11px] text-blue-400 font-semibold uppercase tracking-wider">Giá trọn gói bản quyền</div>
                   <div className="flex items-baseline gap-2 mt-0.5">
@@ -118,10 +119,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 sm:flex gap-2">
                   <button
+                    type="button"
                     onClick={() => onPreview(product)}
-                    className="px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                   >
                     <Eye className="w-3.5 h-3.5 text-sky-400" />
                     <span>Demo</span>
@@ -129,7 +131,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onBuy(product)}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-500/25 flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                   >
                     <Zap className="w-3.5 h-3.5 fill-white" />
                     <span>Mua Ngay</span>
@@ -139,9 +141,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Details Tabs */}
+          {/* Details Tabs (Scrollable on small mobile screens) */}
           <div className="border-t border-white/10 pt-6">
-            <div className="flex gap-4 border-b border-white/10 pb-2 mb-4 text-xs font-bold">
+            <div className="flex gap-4 border-b border-white/10 pb-2 mb-4 text-xs font-bold overflow-x-auto whitespace-nowrap">
               <button
                 onClick={() => setActiveTab('features')}
                 className={`pb-2 transition-colors border-b-2 -mb-2.5 ${

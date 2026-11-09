@@ -47,10 +47,10 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="absolute -right-10 top-[58%] w-[55%] h-[2px] rotate-[10deg] bg-gradient-to-r from-transparent via-sky-300/80 to-transparent blur-[2px]" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-24 grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
         {/* Left: headline */}
         <div>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold text-white tracking-tight leading-[1.05]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tight leading-[1.1]">
             Khởi tạo website
             <br />
             <span
@@ -60,7 +60,7 @@ export const Hero: React.FC<HeroProps> = ({
               chuẩn mực tương lai
             </span>
           </h1>
-          <p className="mt-6 text-slate-400 text-base sm:text-lg max-w-lg leading-relaxed">
+          <p className="mt-4 sm:mt-6 text-slate-400 text-sm sm:text-base md:text-lg max-w-lg leading-relaxed">
             Tuyển chọn các mẫu website làm sẵn chuẩn quốc tế. Xem thử trực tiếp, thanh toán VietQR nhận trọn bộ file .ZIP và bản quyền tức thì.
           </p>
 
@@ -69,22 +69,22 @@ export const Hero: React.FC<HeroProps> = ({
               e.preventDefault();
               handleExplore();
             }}
-            className="mt-8 relative max-w-md"
+            className="mt-6 sm:mt-8 relative max-w-md"
           >
             <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Tìm theo tên website hoặc mã SP (Enter)..."
-              className="w-full pl-11 pr-4 py-3 bg-white/5 text-white placeholder-slate-500 border border-white/15 focus:border-sky-400 rounded-full outline-none text-sm backdrop-blur-xl transition-colors"
+              placeholder="Tìm theo tên website hoặc mã SP..."
+              className="w-full pl-11 pr-4 py-3 bg-white/5 text-white placeholder-slate-500 border border-white/15 focus:border-sky-400 rounded-full outline-none text-xs sm:text-sm backdrop-blur-xl transition-colors"
             />
           </form>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               onClick={handleExplore}
-              className="px-6 py-3 rounded-full bg-white text-slate-950 text-sm font-bold hover:bg-slate-200 transition shadow-lg shadow-white/10 flex items-center gap-2 active:scale-95"
+              className="w-full sm:w-auto px-6 py-3 rounded-full bg-white text-slate-950 text-xs sm:text-sm font-bold hover:bg-slate-200 transition shadow-lg shadow-white/10 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
             >
               <span>Khám Phá Kho Website</span>
               <ArrowRight className="w-4 h-4" />
@@ -92,11 +92,27 @@ export const Hero: React.FC<HeroProps> = ({
             {onOpenLicense && (
               <button
                 onClick={onOpenLicense}
-                className="px-5 py-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-white text-sm font-semibold transition active:scale-95"
+                className="w-full sm:w-auto px-5 py-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs sm:text-sm font-semibold transition active:scale-95 flex items-center justify-center cursor-pointer"
               >
                 Tra Cứu Bản Quyền
               </button>
             )}
+          </div>
+
+          {/* Mobile Highlights Bar (visible on mobile/tablet) */}
+          <div className="lg:hidden mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center gap-2 text-[11px] text-slate-300">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+              <Zap className="w-3.5 h-3.5 text-amber-300" />
+              <span>Tốc độ Lighthouse 95+</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
+              <span>Bản quyền trọn đời</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+              <Download className="w-3.5 h-3.5 text-sky-300" />
+              <span>Tải .ZIP tức thì</span>
+            </span>
           </div>
         </div>
 

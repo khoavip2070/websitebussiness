@@ -73,28 +73,45 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {product.tagline}
         </p>
 
-        <div className="mt-auto pt-5 flex items-end justify-between gap-3">
+        <div className="mt-auto pt-4 flex items-center justify-between gap-2">
           <div>
-            <div className="text-lg font-semibold text-white">{formatVnd(product.price)}</div>
+            <div className="text-base sm:text-lg font-bold text-white tracking-tight">{formatVnd(product.price)}</div>
             {product.originalPrice ? (
-              <div className="text-[11px] text-slate-500 line-through">
+              <div className="text-[10px] sm:text-[11px] text-slate-500 line-through">
                 {formatVnd(product.originalPrice)}
               </div>
             ) : null}
           </div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (onBuy) onBuy(product);
-              else onSelect(product);
-            }}
-            style={{ transform: 'translateZ(30px)' }}
-            className="relative z-30 px-4 py-2 rounded-full bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-sky-500/20 hover:shadow-sky-500/40 active:scale-95 flex items-center gap-1.5 cursor-pointer select-none pointer-events-auto"
-          >
-            <ShoppingBag className="w-3.5 h-3.5" /> Mua ngay
-          </button>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onPreview(product);
+              }}
+              style={{ transform: 'translateZ(30px)' }}
+              className="relative z-30 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer select-none active:scale-95 border border-white/10"
+              title="Xem demo website trực tiếp"
+            >
+              <Eye className="w-3.5 h-3.5 text-sky-400" />
+              <span>Demo</span>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (onBuy) onBuy(product);
+                else onSelect(product);
+              }}
+              style={{ transform: 'translateZ(30px)' }}
+              className="relative z-30 px-3.5 sm:px-4 py-2 rounded-full bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-sky-500/20 hover:shadow-sky-500/40 active:scale-95 flex items-center gap-1.5 cursor-pointer select-none pointer-events-auto"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Mua ngay</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

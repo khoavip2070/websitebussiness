@@ -204,12 +204,12 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto flex flex-col">
-            {/* Top Toolbar Tabs */}
-            <div className="px-6 py-3 border-b border-white/10 bg-white/[0.02] flex flex-wrap items-center justify-between gap-3 shrink-0">
-              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold">
+            {/* Top Toolbar Tabs (Responsive with horizontal scroll on mobile) */}
+            <div className="px-4 sm:px-6 py-3 border-b border-white/10 bg-white/[0.02] flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold overflow-x-auto whitespace-nowrap max-w-full">
                 <button
                   onClick={() => setActiveTab('pending')}
-                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                     activeTab === 'pending'
                       ? 'bg-blue-600 text-white shadow'
                       : 'text-slate-400 hover:text-white'
@@ -220,7 +220,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({
                 </button>
                 <button
                   onClick={() => setActiveTab('completed')}
-                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                     activeTab === 'completed'
                       ? 'bg-blue-600 text-white shadow'
                       : 'text-slate-400 hover:text-white'
@@ -231,7 +231,7 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({
                 </button>
                 <button
                   onClick={() => setActiveTab('bank')}
-                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                     activeTab === 'bank'
                       ? 'bg-blue-600 text-white shadow'
                       : 'text-slate-400 hover:text-white'
@@ -294,11 +294,11 @@ export const AdminPortalModal: React.FC<AdminPortalModalProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 w-full md:w-auto shrink-0 pt-2 md:pt-0">
                           <button
                             onClick={() => handleApproveOrder(ord.orderCode)}
                             disabled={approvingCode === ord.orderCode}
-                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-500/25 flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
+                            className="w-full md:w-auto px-5 py-3 md:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
                           >
                             <CheckCircle2 className="w-4 h-4" />
                             <span>{approvingCode === ord.orderCode ? 'Đang duyệt...' : 'Duyệt Đơn & Cấp Key'}</span>
