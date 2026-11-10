@@ -121,10 +121,16 @@ app.post('/api/desktop/window/close', (req, res) => {
 app.post('/api/desktop/open-url', (req, res) => {
   const { url } = req.body;
   const target = url || 'http://localhost:4000/store';
-  exec(`start "" "${target}"`, (err) => {
-    if (err) console.warn('Open URL error:', err.message);
-    res.json({ success: true, url: target });
-  });
+  if (process.platform === 'win32') {
+    exec(`powershell -NoProfile -Command "Start-Process '${target}'"`, (err) => {
+      if (err) console.warn('Open URL error:', err.message);
+    });
+  } else if (process.platform === 'darwin') {
+    exec(`open "${target}"`);
+  } else {
+    exec(`xdg-open "${target}"`);
+  }
+  res.json({ success: true, url: target });
 });
 
 // Initial Database Loader
@@ -276,9 +282,11 @@ app.get('/api/products', async (req, res) => {
       const localMap = new Map((db.products || []).map(p => [p.id, p]));
       db.products = supaProducts.map(sp => {
         const local = localMap.get(sp.id);
+        const resolvedDemoUrl = sp.demoUrl || (local && local.demoUrl) || '/demos/forge-profile/index.html';
         return {
           ...local,
           ...sp,
+          demoUrl: resolvedDemoUrl,
           downloadFileName: sp.downloadFileName || (local ? local.downloadFileName : '')
         };
       });

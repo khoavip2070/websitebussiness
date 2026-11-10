@@ -44,6 +44,8 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
     }
   };
 
+  const demoUrl = product.demoUrl || '/demos/forge-profile/index.html';
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/90 backdrop-blur-md">
       {/* Top Controls Bar */}
@@ -107,7 +109,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
           </button>
 
           <a
-            href={product.demoUrl}
+            href={demoUrl}
             target="_blank"
             rel="noreferrer"
             title="Mở toàn màn hình trong tab mới"
@@ -142,7 +144,7 @@ export const LivePreviewModal: React.FC<LivePreviewModalProps> = ({
         >
           <iframe
             key={iframeKey}
-            src={product.demoUrl}
+            src={demoUrl}
             title={product.title}
             className="w-full h-full border-0"
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
