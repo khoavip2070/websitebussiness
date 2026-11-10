@@ -121,6 +121,15 @@ export interface CustomerSummary {
   lastOrderDate: string;
 }
 
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: 'customer' | 'admin';
+  createdAt: string;
+}
+
 export interface LocalFolderScanResult {
   path: string;
   name: string;

@@ -76,6 +76,17 @@ CREATE TABLE IF NOT EXISTS public.settings (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 5. BẢNG TÀI KHOẢN KHÁCH HÀNG (USERS)
+CREATE TABLE IF NOT EXISTS public.users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT,
+    phone TEXT,
+    role TEXT DEFAULT 'customer',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- BẬT ROW LEVEL SECURITY (RLS) & PHÂN QUYỀN TRUY CẬP
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;

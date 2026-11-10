@@ -16,9 +16,11 @@ import {
   Send
 } from 'lucide-react';
 import { WebsiteProduct } from '@sitevault/shared';
+import { UserAccount } from '../shared/types';
 
 interface CheckoutModalProps {
   product: WebsiteProduct | null;
+  currentUser?: UserAccount | null;
   onClose: () => void;
   onOrderSuccess: () => void;
 }
@@ -32,13 +34,14 @@ interface OrderResult {
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   product,
+  currentUser = null,
   onClose,
   onOrderSuccess
 }) => {
   const [step, setStep] = useState<'info' | 'payment' | 'success'>('info');
-  const [customerName, setCustomerName] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerName, setCustomerName] = useState(currentUser?.name || '');
+  const [customerEmail, setCustomerEmail] = useState(currentUser?.email || '');
+  const [customerPhone, setCustomerPhone] = useState(currentUser?.phone || '');
   const [orderType, setOrderType] = useState<'available' | 'custom'>('available');
   const [customRequirements, setCustomRequirements] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,6 +51,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [hasNotified, setHasNotified] = useState(false);
   const [isNotifying, setIsNotifying] = useState(false);
+
+  // Sync user details on change or mount
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.name && !customerName) setCustomerName(currentUser.name);
+      if (currentUser.email && !customerEmail) setCustomerEmail(currentUser.email);
+      if (currentUser.phone && !customerPhone) setCustomerPhone(currentUser.phone);
+    }
+  }, [currentUser, product?.id]);
 
   // Reset state whenever a different product is opened
   useEffect(() => {
@@ -238,6 +250,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 Bàn giao tự động
               </span>
             </div>
+
+            {currentUser && (
+              <div className="p-2.5 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-between text-xs text-sky-900">
+                <div className="flex items-center gap-2 truncate">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate">Đặt mua với tài khoản: <strong>{currentUser.email}</strong></span>
+                </div>
+                <span className="text-[10px] font-bold text-sky-600 bg-sky-100 px-2 py-0.5 rounded-full shrink-0">
+                  Tự động đồng bộ
+                </span>
+              </div>
+            )}
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Search, ShoppingBag, Home, KeyRound, Sparkles } from 'lucide-react';
+import { Search, ShoppingBag, Home, KeyRound, Sparkles, User } from 'lucide-react';
+import { UserAccount } from '../shared/types';
 
 export type PageId = 'home' | 'store' | 'license';
 
@@ -9,6 +10,9 @@ interface NavbarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   productCount?: number;
+  currentUser?: UserAccount | null;
+  onOpenAuth?: () => void;
+  onOpenAccount?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -16,7 +20,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigate,
   searchQuery,
   onSearchChange,
-  productCount = 0
+  productCount = 0,
+  currentUser = null,
+  onOpenAuth,
+  onOpenAccount
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-[#070A11]/90 backdrop-blur-2xl border-b border-white/10 select-none">
@@ -86,22 +93,48 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </nav>
 
-        {/* Right: Quick Search input on desktop */}
-        <div className="hidden lg:block w-64 relative">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onFocus={() => {
-              if (currentPage !== 'store') onNavigate('store');
-            }}
-            onChange={(e) => {
-              onSearchChange(e.target.value);
-              if (currentPage !== 'store') onNavigate('store');
-            }}
-            placeholder="Tìm theo tên hoặc mã..."
-            className="w-full pl-9 pr-4 py-1.5 text-xs bg-white/5 hover:bg-white/10 focus:bg-slate-900 text-white placeholder-slate-400 border border-white/10 focus:border-sky-400 rounded-full transition-all outline-none"
-          />
+        {/* Right: Quick Search input + Customer Account */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden lg:block w-52 xl:w-64 relative">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onFocus={() => {
+                if (currentPage !== 'store') onNavigate('store');
+              }}
+              onChange={(e) => {
+                onSearchChange(e.target.value);
+                if (currentPage !== 'store') onNavigate('store');
+              }}
+              placeholder="Tìm theo tên hoặc mã..."
+              className="w-full pl-9 pr-4 py-1.5 text-xs bg-white/5 hover:bg-white/10 focus:bg-slate-900 text-white placeholder-slate-400 border border-white/10 focus:border-sky-400 rounded-full transition-all outline-none"
+            />
+          </div>
+
+          {/* Account Button */}
+          {currentUser ? (
+            <button
+              onClick={onOpenAccount}
+              className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full bg-gradient-to-r from-sky-500/10 to-indigo-500/10 hover:from-sky-500/20 hover:to-indigo-500/20 border border-sky-500/30 text-white text-xs font-semibold transition-all cursor-pointer shadow-sm hover:border-sky-400"
+              title="Xem thông tin tài khoản và lịch sử mua hàng"
+            >
+              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-[11px] font-black text-white shadow-inner shrink-0">
+                {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <span className="max-w-[70px] sm:max-w-[120px] truncate text-[11px] font-bold text-sky-200">
+                {currentUser.name || currentUser.email.split('@')[0]}
+              </span>
+            </button>
+          ) : (
+            <button
+              onClick={onOpenAuth}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-sky-400/40 text-slate-200 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+            >
+              <User className="w-3.5 h-3.5 text-sky-400" />
+              <span className="hidden xs:inline">Tài Khoản</span>
+            </button>
+          )}
         </div>
 
       </div>

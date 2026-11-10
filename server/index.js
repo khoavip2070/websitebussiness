@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { createZipFromFolder } from './packager.js';
@@ -178,6 +179,7 @@ function normalizeDatabase(data) {
   if (!Array.isArray(data.products)) data.products = [];
   if (!Array.isArray(data.orders)) data.orders = [];
   if (!Array.isArray(data.licenses)) data.licenses = [];
+  if (!Array.isArray(data.users)) data.users = [];
   
   data.orders.forEach(order => {
     if (!order.orderType) order.orderType = 'available';
@@ -220,6 +222,55 @@ function saveDatabase(data) {
 }
 
 let db = normalizeDatabase(loadDatabase());
+
+// ==========================================
+// Authentication & Security Helpers
+// ==========================================
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password + '_kweb_salt_2026').digest('hex');
+}
+
+function createToken(userId, email) {
+  const payload = Buffer.from(JSON.stringify({ userId, email, exp: Date.now() + 30 * 24 * 3600 * 1000 })).toString('base64');
+  const signature = crypto.createHmac('sha256', 'kweb_jwt_secret_2026').update(payload).digest('hex');
+  return `${payload}.${signature}`;
+}
+
+function verifyToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const [payload, signature] = parts;
+  const expectedSig = crypto.createHmac('sha256', 'kweb_jwt_secret_2026').update(payload).digest('hex');
+  if (signature !== expectedSig) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+    if (data.exp && data.exp < Date.now()) return null;
+    return data;
+  } catch (_) {
+    return null;
+  }
+}
+
+function sanitizeUser(user) {
+  if (!user) return null;
+  const { passwordHash, ...rest } = user;
+  return rest;
+}
+
+function getUserFromRequest(req) {
+  const authHeader = req.headers.authorization || '';
+  let token = '';
+  if (authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else if (req.query && req.query.token) {
+    token = String(req.query.token);
+  }
+  const payload = verifyToken(token);
+  if (!payload || !payload.email) return null;
+  const user = (db.users || []).find(u => u.id === payload.userId || u.email.toLowerCase() === payload.email.toLowerCase());
+  return user || null;
+}
 
 // Dynamically compute real stats from database records
 function calculateRealStats() {
@@ -975,6 +1026,23 @@ app.post('/api/orders', async (req, res) => {
   };
 
   db.orders.unshift(newOrder);
+
+  // Auto-sync customer to users list if not registered
+  db.users = db.users || [];
+  let existingUser = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+  if (!existingUser) {
+    db.users.push({
+      id: `usr-${Date.now().toString(36)}`,
+      name: customerName.trim(),
+      email: cleanEmail,
+      phone: customerPhone ? customerPhone.trim() : '',
+      role: 'customer',
+      createdAt: new Date().toISOString()
+    });
+  } else if (!existingUser.phone && customerPhone) {
+    existingUser.phone = customerPhone.trim();
+  }
+
   saveDatabase(db);
 
   if (process.platform === 'win32') {
@@ -1397,6 +1465,273 @@ app.get('/api/customers', (req, res) => {
 
   const customers = Array.from(customerMap.values()).sort((a, b) => b.totalSpent - a.totalSpent);
   res.json({ success: true, count: customers.length, data: customers });
+});
+
+// ==========================================
+// CUSTOMER ACCOUNT & AUTHENTICATION ENDPOINTS
+// ==========================================
+
+// Register customer account
+app.post('/api/auth/register', (req, res) => {
+  const { name, email, password, phone } = req.body || {};
+  if (!name || !email || !password) {
+    return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ họ tên, email và mật khẩu.' });
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+    return res.status(400).json({ success: false, message: 'Địa chỉ email không hợp lệ.' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, message: 'Mật khẩu phải có ít nhất 6 ký tự.' });
+  }
+
+  db.users = db.users || [];
+  let existingUser = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+
+  if (existingUser && existingUser.passwordHash) {
+    return res.status(400).json({ success: false, message: 'Email này đã được đăng ký tài khoản. Vui lòng đăng nhập.' });
+  }
+
+  if (existingUser) {
+    existingUser.name = name.trim();
+    if (phone) existingUser.phone = phone.trim();
+    existingUser.passwordHash = hashPassword(password);
+  } else {
+    existingUser = {
+      id: `usr-${Date.now().toString(36)}`,
+      name: name.trim(),
+      email: cleanEmail,
+      phone: phone ? phone.trim() : '',
+      passwordHash: hashPassword(password),
+      role: 'customer',
+      createdAt: new Date().toISOString()
+    };
+    db.users.push(existingUser);
+  }
+
+  saveDatabase(db);
+
+  const token = createToken(existingUser.id, existingUser.email);
+  const userOrders = (db.orders || []).filter(o => o.customerEmail.toLowerCase() === cleanEmail);
+
+  res.status(201).json({
+    success: true,
+    message: 'Đăng ký tài khoản thành công!',
+    data: {
+      user: sanitizeUser(existingUser),
+      token,
+      totalOrders: userOrders.length
+    }
+  });
+});
+
+// Login customer account
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Vui lòng nhập email và mật khẩu.' });
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  const user = (db.users || []).find(u => u.email.toLowerCase() === cleanEmail);
+
+  if (!user) {
+    const hasOrders = (db.orders || []).some(o => o.customerEmail.toLowerCase() === cleanEmail);
+    if (hasOrders) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email này đã từng đặt mua website nhưng chưa kích hoạt mật khẩu. Bạn hãy chọn tab "Đăng Ký" để đặt mật khẩu nhé!'
+      });
+    }
+    return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại. Vui lòng kiểm tra lại email hoặc đăng ký mới.' });
+  }
+
+  if (!user.passwordHash || user.passwordHash !== hashPassword(password)) {
+    return res.status(401).json({ success: false, message: 'Mật khẩu không chính xác.' });
+  }
+
+  const token = createToken(user.id, user.email);
+  const userOrders = (db.orders || []).filter(o => o.customerEmail.toLowerCase() === cleanEmail);
+
+  res.json({
+    success: true,
+    message: 'Đăng nhập thành công!',
+    data: {
+      user: sanitizeUser(user),
+      token,
+      totalOrders: userOrders.length
+    }
+  });
+});
+
+// Quick access without password by email
+app.post('/api/auth/quick-access', (req, res) => {
+  const { email, orderCode } = req.body || {};
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'Vui lòng nhập địa chỉ email của bạn.' });
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  const matchedOrders = (db.orders || []).filter(o => o.customerEmail.toLowerCase() === cleanEmail);
+
+  if (matchedOrders.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: 'Không tìm thấy đơn hàng nào gắn với email này. Vui lòng kiểm tra lại email đã dùng khi đặt mua.'
+    });
+  }
+
+  if (orderCode) {
+    const cleanCode = orderCode.trim().toUpperCase();
+    const hasCode = matchedOrders.some(o => o.orderCode.toUpperCase() === cleanCode);
+    if (!hasCode) {
+      return res.status(400).json({ success: false, message: 'Mã đơn hàng không khớp với email này.' });
+    }
+  }
+
+  db.users = db.users || [];
+  let user = db.users.find(u => u.email.toLowerCase() === cleanEmail);
+  if (!user) {
+    const latestOrder = matchedOrders[0];
+    user = {
+      id: `usr-${Date.now().toString(36)}`,
+      name: latestOrder.customerName || 'Khách hàng KWeb',
+      email: cleanEmail,
+      phone: latestOrder.customerPhone || '',
+      role: 'customer',
+      createdAt: new Date().toISOString()
+    };
+    db.users.push(user);
+    saveDatabase(db);
+  }
+
+  const token = createToken(user.id, user.email);
+
+  res.json({
+    success: true,
+    message: 'Xác thực email thành công!',
+    data: {
+      user: sanitizeUser(user),
+      token,
+      totalOrders: matchedOrders.length
+    }
+  });
+});
+
+// Get current profile
+app.get('/api/auth/me', (req, res) => {
+  const user = getUserFromRequest(req);
+  if (!user) {
+    return res.status(401).json({ success: false, message: 'Chưa đăng nhập hoặc phiên đã hết hạn.' });
+  }
+
+  const orders = (db.orders || []).filter(o => o.customerEmail.toLowerCase() === user.email.toLowerCase());
+  const completedOrders = orders.filter(o => o.status === 'completed' || o.paymentStatus === 'paid');
+  const totalSpent = completedOrders.reduce((s, o) => s + (Number(o.productPrice) || 0), 0);
+
+  res.json({
+    success: true,
+    data: {
+      user: sanitizeUser(user),
+      stats: {
+        totalOrders: orders.length,
+        completedOrders: completedOrders.length,
+        totalSpent
+      }
+    }
+  });
+});
+
+// Update profile info
+app.patch('/api/auth/profile', (req, res) => {
+  const user = getUserFromRequest(req);
+  if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập.' });
+
+  const { name, phone, password, oldPassword } = req.body || {};
+  if (name) user.name = name.trim();
+  if (phone !== undefined) user.phone = phone.trim();
+
+  if (password) {
+    if (user.passwordHash && (!oldPassword || hashPassword(oldPassword) !== user.passwordHash)) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không đúng.' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+    }
+    user.passwordHash = hashPassword(password);
+  }
+
+  saveDatabase(db);
+  res.json({ success: true, message: 'Đã cập nhật thông tin thành công!', data: sanitizeUser(user) });
+});
+
+// Customer purchase history
+app.get('/api/user/orders', (req, res) => {
+  const user = getUserFromRequest(req);
+  const queryEmail = req.query.email ? String(req.query.email).trim().toLowerCase() : null;
+  const targetEmail = user?.email?.toLowerCase() || queryEmail;
+
+  if (!targetEmail) {
+    return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để xem lịch sử đơn hàng.' });
+  }
+
+  const userOrders = (db.orders || [])
+    .filter(o => o.customerEmail.toLowerCase() === targetEmail)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const enriched = userOrders.map(o => {
+    const isPaid = o.paymentStatus === 'paid' || o.status === 'completed';
+    const lic = (db.licenses || []).find(l => l.orderCode === o.orderCode || l.key === o.licenseKey);
+    return {
+      id: o.id,
+      orderCode: o.orderCode,
+      productTitle: o.productTitle,
+      productPrice: o.productPrice,
+      orderType: o.orderType || 'available',
+      customRequirements: o.customRequirements || '',
+      status: o.status,
+      paymentStatus: o.paymentStatus || (isPaid ? 'paid' : 'unpaid'),
+      paymentMethod: o.paymentMethod,
+      transactionId: o.transactionId,
+      paidAt: o.paidAt,
+      deliveredAt: o.deliveredAt,
+      licenseKey: isPaid ? o.licenseKey : null,
+      handoverUrl: o.handoverUrl || '',
+      downloadUrl: isPaid ? (o.downloadUrl || `/api/download/${o.licenseKey}`) : null,
+      handoverNotes: o.handoverNotes || '',
+      statusHistory: o.statusHistory || [],
+      createdAt: o.createdAt,
+      remainingDownloads: lic ? Math.max(0, (lic.maxDownloads || 10) - (lic.downloadCount || 0)) : 10
+    };
+  });
+
+  res.json({
+    success: true,
+    count: enriched.length,
+    data: enriched
+  });
+});
+
+// Customer licenses
+app.get('/api/user/licenses', (req, res) => {
+  const user = getUserFromRequest(req);
+  const queryEmail = req.query.email ? String(req.query.email).trim().toLowerCase() : null;
+  const targetEmail = user?.email?.toLowerCase() || queryEmail;
+
+  if (!targetEmail) {
+    return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập.' });
+  }
+
+  const licenses = (db.licenses || [])
+    .filter(l => l.customerEmail.toLowerCase() === targetEmail && l.isActive !== false);
+
+  res.json({
+    success: true,
+    count: licenses.length,
+    data: licenses
+  });
 });
 
 // 3. License Verification & Real File Download (Dual lookup by key or orderCode)

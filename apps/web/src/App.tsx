@@ -11,11 +11,14 @@ import {
   LicenseLookupModal, 
   LicensePageView,
   AdminPortalModal,
+  AuthModal,
+  AccountModal,
   Footer,
   Reveal3D,
   BentoShowcase
 } from './components';
 import { WebsiteProduct, CategoryId, INITIAL_PRODUCTS } from '@sitevault/shared';
+import { UserAccount } from './shared/types';
 import { 
   SearchX, 
   ChevronLeft, 
@@ -26,7 +29,8 @@ import {
   Layers,
   Home,
   KeyRound,
-  ShieldCheck
+  ShieldCheck,
+  User
 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
@@ -42,6 +46,40 @@ const getPageFromHash = (): PageId => {
 export const App: React.FC = () => {
   // Page Routing State
   const [currentPage, setCurrentPage] = useState<PageId>(getPageFromHash);
+
+  // Customer Account & Auth State
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+    try {
+      const saved = localStorage.getItem('kweb_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (_) {
+      return null;
+    }
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+
+  // Validate or refresh customer session token on mount
+  useEffect(() => {
+    const token = localStorage.getItem('kweb_token');
+    if (token) {
+      fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.user) {
+            setCurrentUser(data.user);
+            localStorage.setItem('kweb_user', JSON.stringify(data.user));
+          } else if (data.status === 401) {
+            localStorage.removeItem('kweb_token');
+            localStorage.removeItem('kweb_user');
+            setCurrentUser(null);
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   // Products & Filter State (Default to INITIAL_PRODUCTS so no flicker / empty state)
   const [products, setProducts] = useState<WebsiteProduct[]>(INITIAL_PRODUCTS);
@@ -230,6 +268,9 @@ export const App: React.FC = () => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         productCount={products.length}
+        currentUser={currentUser}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenAccount={() => setIsAccountModalOpen(true)}
       />
 
       {/* 2. Main Multi-Page Content */}
@@ -447,6 +488,7 @@ export const App: React.FC = () => {
         <CheckoutModal
           key={checkoutProduct.id}
           product={checkoutProduct}
+          currentUser={currentUser}
           onClose={() => setCheckoutProduct(null)}
           onOrderSuccess={() => {
             fetchProducts();
@@ -470,6 +512,27 @@ export const App: React.FC = () => {
         onOrderUpdated={fetchProducts}
       />
 
+      {/* Customer Account & Order History Modals */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={(user) => {
+          setCurrentUser(user);
+        }}
+      />
+
+      <AccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+        user={currentUser}
+        onLogout={() => {
+          localStorage.removeItem('kweb_token');
+          localStorage.removeItem('kweb_user');
+          setCurrentUser(null);
+          setIsAccountModalOpen(false);
+        }}
+      />
+
       {/* 4. Global Luxury Footer */}
       <Footer
         onNavigate={navigateTo}
@@ -482,7 +545,7 @@ export const App: React.FC = () => {
       <nav className="sm:hidden fixed bottom-3 inset-x-3 z-40 bg-[#0A0E1A]/95 backdrop-blur-2xl border border-white/15 rounded-2xl p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center justify-around select-none">
         <button
           onClick={() => navigateTo('home')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all cursor-pointer ${
+          className={`flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all cursor-pointer ${
             currentPage === 'home'
               ? 'bg-white text-slate-950 font-bold shadow-md'
               : 'text-slate-400 hover:text-white'
@@ -494,16 +557,16 @@ export const App: React.FC = () => {
 
         <button
           onClick={() => navigateTo('store')}
-          className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all cursor-pointer ${
+          className={`relative flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all cursor-pointer ${
             currentPage === 'store'
               ? 'bg-white text-slate-950 font-bold shadow-md'
               : 'text-slate-400 hover:text-white'
           }`}
         >
           <ShoppingBag className="w-4 h-4" />
-          <span className="text-[10px] mt-0.5 font-semibold">Kho Website</span>
+          <span className="text-[10px] mt-0.5 font-semibold">Kho Mẫu</span>
           {products.length > 0 && (
-            <span className={`absolute top-0.5 right-2 px-1 rounded-full text-[9px] font-bold ${
+            <span className={`absolute top-0.5 right-1 px-1 rounded-full text-[9px] font-bold ${
               currentPage === 'store' ? 'bg-slate-900 text-white' : 'bg-sky-500 text-slate-950'
             }`}>
               {products.length}
@@ -513,7 +576,7 @@ export const App: React.FC = () => {
 
         <button
           onClick={() => navigateTo('license')}
-          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all cursor-pointer ${
+          className={`flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl transition-all cursor-pointer ${
             currentPage === 'license'
               ? 'bg-white text-slate-950 font-bold shadow-md'
               : 'text-slate-400 hover:text-white'
@@ -523,9 +586,29 @@ export const App: React.FC = () => {
           <span className="text-[10px] mt-0.5 font-semibold">Tra Cứu</span>
         </button>
 
+        {currentUser ? (
+          <button
+            onClick={() => setIsAccountModalOpen(true)}
+            className="flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl text-sky-400 hover:text-white transition-all cursor-pointer"
+          >
+            <User className="w-4 h-4 text-sky-400" />
+            <span className="text-[10px] mt-0.5 font-semibold truncate max-w-[50px]">
+              {currentUser.name ? currentUser.name.split(' ')[0] : 'Tài Khoản'}
+            </span>
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsAuthModalOpen(true)}
+            className="flex flex-col items-center justify-center py-1.5 px-2.5 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer"
+          >
+            <User className="w-4 h-4" />
+            <span className="text-[10px] mt-0.5 font-semibold">Tài Khoản</span>
+          </button>
+        )}
+
         <button
           onClick={() => setIsAdminModalOpen(true)}
-          className="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-400 hover:text-white transition-all cursor-pointer"
         >
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
           <span className="text-[10px] mt-0.5 font-semibold">Admin</span>
