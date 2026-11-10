@@ -13,7 +13,9 @@ import {
   ArrowRight,
   ShieldCheck,
   FileCode2,
-  Sparkles
+  Sparkles,
+  ExternalLink,
+  Clock
 } from 'lucide-react';
 import { PageId } from './Navbar';
 
@@ -123,7 +125,7 @@ export const LicensePageView: React.FC<LicensePageViewProps> = ({ onNavigate }) 
 
         <form onSubmit={handleLookup} className="space-y-4 relative z-10">
           <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-            Mã Bản Quyền (License Key)
+            Mã Bản Quyền (License Key) hoặc Mã Đơn Hàng (Order Code)
           </label>
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
@@ -132,7 +134,7 @@ export const LicensePageView: React.FC<LicensePageViewProps> = ({ onNavigate }) 
                 type="text"
                 value={licenseKey}
                 onChange={(e) => setLicenseKey(e.target.value)}
-                placeholder="Ví dụ: FORGE-89X2-LK99-VN26"
+                placeholder="Ví dụ: ORD-1001 hoặc FORGE-89X2-LK99-VN26"
                 className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/5 border border-white/15 text-white font-mono text-sm sm:text-base uppercase tracking-wider placeholder-slate-500 focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all"
               />
             </div>
@@ -156,7 +158,7 @@ export const LicensePageView: React.FC<LicensePageViewProps> = ({ onNavigate }) 
           </div>
           <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
             <Sparkles className="w-3 h-3 text-sky-400" />
-            Mã License được cấp tự động ngay trên màn hình thanh toán VietQR và gửi qua email của bạn.
+            Nhập mã License Key hoặc mã đơn hàng ORD-... để tra cứu tiến độ thực hiện và nhận bàn giao.
           </p>
         </form>
 
@@ -180,7 +182,20 @@ export const LicensePageView: React.FC<LicensePageViewProps> = ({ onNavigate }) 
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider">Trạng thái: Hoạt động</div>
+                  <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider">
+                    {result.order ? (
+                      <span>
+                        Đơn hàng: {result.order.orderCode} •{' '}
+                        {result.order.status === 'completed'
+                          ? 'Đã hoàn tất & bàn giao'
+                          : result.order.status === 'processing'
+                          ? 'Đang thực hiện thiết kế'
+                          : 'Chờ duyệt'}
+                      </span>
+                    ) : (
+                      'Trạng thái: Hoạt động'
+                    )}
+                  </div>
                   <h3 className="text-lg font-bold text-white mt-0.5">{result.productTitle}</h3>
                 </div>
               </div>
@@ -191,6 +206,36 @@ export const LicensePageView: React.FC<LicensePageViewProps> = ({ onNavigate }) 
                 </span>
               </div>
             </div>
+
+            {/* Handover Notice & Live Website Link if Admin provided */}
+            {(result.handoverUrl || result.handoverNotes) && (
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-950/60 to-indigo-950/60 border border-blue-500/30 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Thông Tin Bàn Giao Từ KWeb Studio</span>
+                  </span>
+                  {result.handoverUrl && (
+                    <a
+                      href={result.handoverUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-4 py-1.5 rounded-full bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition shadow"
+                    >
+                      <Globe className="w-3.5 h-3.5" />
+                      <span>Xem Website Hoàn Thiện</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+
+                {result.handoverNotes && (
+                  <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
+                    {result.handoverNotes}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* License Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -229,7 +274,7 @@ export const LicensePageView: React.FC<LicensePageViewProps> = ({ onNavigate }) 
               </div>
 
               <a
-                href={`/api/download/${result.license.key}`}
+                href={result.downloadUrl || `/api/download/${result.license.key}`}
                 download
                 className="w-full sm:w-auto px-6 py-3 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs shadow-lg shadow-sky-400/20 transition-all flex items-center justify-center gap-2 active:scale-95 shrink-0"
               >

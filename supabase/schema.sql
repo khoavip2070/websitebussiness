@@ -109,3 +109,18 @@ CREATE POLICY "Allow service role full access on settings" ON public.settings FO
 INSERT INTO public.settings (id, bank_account, bank_name, account_name, auto_approve_qr, desktop_notify, auto_zip_exclude)
 VALUES ('default', '19036888899999', 'Techcombank', 'NGUYEN STORE OWNER', true, true, true)
 ON CONFLICT (id) DO NOTHING;
+
+-- =========================================================================
+-- MIGRATION: BỔ SUNG CỘT BÀN GIAO, TRẠNG THÁI THANH TOÁN VÀ LỊCH SỬ ĐƠN
+-- =========================================================================
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'unpaid';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_type TEXT DEFAULT 'available';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS custom_requirements TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS handover_url TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS download_url TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS handover_notes TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS status_history JSONB DEFAULT '[]'::jsonb;
+
+ALTER TABLE public.licenses ADD COLUMN IF NOT EXISTS handover_url TEXT;
+ALTER TABLE public.licenses ADD COLUMN IF NOT EXISTS handover_notes TEXT;

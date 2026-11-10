@@ -39,6 +39,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [orderType, setOrderType] = useState<'available' | 'custom'>('available');
+  const [customRequirements, setCustomRequirements] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
@@ -120,6 +122,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           customerName,
           customerEmail,
           customerPhone,
+          orderType,
+          customRequirements: orderType === 'custom' ? customRequirements : undefined,
           paymentMethod: 'vietqr'
         })
       });
@@ -277,6 +281,54 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 placeholder="0912 345 678"
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 font-medium text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all"
               />
+            </div>
+
+            {/* Phân loại nhu cầu đơn hàng */}
+            <div className="space-y-2 pt-1 border-t border-slate-100">
+              <label className="block text-xs font-bold text-slate-700">
+                Hình thức đơn hàng
+              </label>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setOrderType('available')}
+                  className={`py-2 px-3 rounded-xl border font-bold text-left transition-all flex flex-col gap-0.5 ${
+                    orderType === 'available'
+                      ? 'bg-blue-50 border-blue-600 text-blue-900 shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="font-extrabold text-[11px]">📦 Mua website mẫu</span>
+                  <span className="text-[10px] font-normal text-slate-500">Bàn giao ngay source code</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderType('custom')}
+                  className={`py-2 px-3 rounded-xl border font-bold text-left transition-all flex flex-col gap-0.5 ${
+                    orderType === 'custom'
+                      ? 'bg-amber-50 border-amber-600 text-amber-900 shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="font-extrabold text-[11px]">✨ Yêu cầu chỉnh sửa</span>
+                  <span className="text-[10px] font-normal text-slate-500">Đội ngũ hỗ trợ sửa theo ý</span>
+                </button>
+              </div>
+
+              {orderType === 'custom' && (
+                <div className="pt-1.5 animate-fadeIn">
+                  <label className="block text-[11px] font-bold text-amber-900 mb-1">
+                    Ghi chú yêu cầu chỉnh sửa / thông tin dự án
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={customRequirements}
+                    onChange={(e) => setCustomRequirements(e.target.value)}
+                    placeholder="Ví dụ: Đổi logo sang thương hiệu ABC, đổi màu chủ đạo xanh lá, thêm form liên hệ gửi về email..."
+                    className="w-full px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50/40 text-slate-900 placeholder:text-slate-400 font-medium text-xs focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/20 transition-all resize-none"
+                  />
+                </div>
+              )}
             </div>
 
             {verifyError && (

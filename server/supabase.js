@@ -220,11 +220,21 @@ export async function getOrdersFromSupabase() {
       customerEmail: o.customer_email,
       customerPhone: o.customer_phone || '',
       status: o.status,
+      paymentStatus: o.payment_status || (o.status === 'completed' ? 'paid' : (o.status === 'refunded' ? 'refunded' : 'unpaid')),
+      orderType: o.order_type || 'available',
+      customRequirements: o.custom_requirements || '',
+      handoverUrl: o.handover_url || '',
+      downloadUrl: o.download_url || '',
+      handoverNotes: o.handover_notes || '',
+      deliveredAt: o.delivered_at || o.completed_at || null,
+      statusHistory: Array.isArray(o.status_history) ? o.status_history : [],
       paymentMethod: o.payment_method,
       transactionId: o.transaction_id,
       licenseKey: o.license_key,
       createdAt: o.created_at,
-      completedAt: o.completed_at
+      completedAt: o.completed_at,
+      notifiedPaid: Boolean(o.notified_paid),
+      notifiedAt: o.notified_at || null
     }));
   } catch (e) {
     return null;
@@ -246,6 +256,8 @@ export async function getLicensesFromSupabase() {
       downloadCount: l.download_count,
       maxDownloads: l.max_downloads,
       isActive: l.is_active,
+      handoverUrl: l.handover_url || '',
+      handoverNotes: l.handover_notes || '',
       createdAt: l.created_at
     }));
   } catch (e) {
@@ -271,7 +283,33 @@ export async function saveOrderToSupabase(order) {
       transaction_id: order.transactionId,
       license_key: order.licenseKey
     };
-    const { data, error } = await supabase.from('orders').insert(record);
+    if (order.paymentStatus) record.payment_status = order.paymentStatus;
+    if (order.orderType) record.order_type = order.orderType;
+    if (order.customRequirements) record.custom_requirements = order.customRequirements;
+    if (order.handoverUrl) record.handover_url = order.handoverUrl;
+    if (order.downloadUrl) record.download_url = order.downloadUrl;
+    if (order.handoverNotes) record.handover_notes = order.handoverNotes;
+    if (order.deliveredAt) record.delivered_at = order.deliveredAt;
+
+    let { data, error } = await supabase.from('orders').insert(record);
+    if (error && error.message?.includes('schema cache')) {
+      const coreRecord = {
+        id: order.id,
+        order_code: order.orderCode,
+        product_id: order.productId,
+        product_title: order.productTitle,
+        product_price: order.productPrice,
+        customer_name: order.customerName,
+        customer_email: order.customerEmail,
+        customer_phone: order.customerPhone,
+        status: order.status || 'pending',
+        payment_method: order.paymentMethod || 'vietqr',
+        transaction_id: order.transactionId,
+        license_key: order.licenseKey
+      };
+      const retry = await supabase.from('orders').insert(coreRecord);
+      error = retry.error;
+    }
     if (error) console.error('[Supabase] Save order error:', error.message);
     return !error;
   } catch (e) {
@@ -287,8 +325,26 @@ export async function updateOrderInSupabase(orderCode, updates) {
     if (updates.status) record.status = updates.status;
     if (updates.transactionId) record.transaction_id = updates.transactionId;
     if (updates.completedAt) record.completed_at = updates.completedAt;
+    if (updates.notified_paid !== undefined) record.notified_paid = updates.notified_paid;
+    if (updates.notifiedPaid !== undefined) record.notified_paid = updates.notifiedPaid;
+    if (updates.notified_at) record.notified_at = updates.notified_at;
+    if (updates.notifiedAt) record.notified_at = updates.notifiedAt;
+    if (updates.paymentStatus) record.payment_status = updates.paymentStatus;
+    if (updates.handoverUrl !== undefined) record.handover_url = updates.handoverUrl;
+    if (updates.downloadUrl !== undefined) record.download_url = updates.downloadUrl;
+    if (updates.handoverNotes !== undefined) record.handover_notes = updates.handoverNotes;
+    if (updates.deliveredAt) record.delivered_at = updates.deliveredAt;
 
-    const { error } = await supabase.from('orders').update(record).eq('order_code', orderCode);
+    let { error } = await supabase.from('orders').update(record).eq('order_code', orderCode);
+    if (error && error.message?.includes('schema cache')) {
+      const coreRecord = {};
+      if (updates.status) coreRecord.status = updates.status;
+      if (updates.transactionId) coreRecord.transaction_id = updates.transactionId;
+      if (updates.completedAt) coreRecord.completed_at = updates.completedAt;
+      if (updates.notified_paid !== undefined) coreRecord.notified_paid = updates.notified_paid;
+      const retry = await supabase.from('orders').update(coreRecord).eq('order_code', orderCode);
+      error = retry.error;
+    }
     if (error) console.error('[Supabase] Update order error:', error.message);
     return !error;
   } catch (e) {

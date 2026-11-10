@@ -53,19 +53,43 @@ export interface WebsiteProduct {
   localFolderPath?: string;
 }
 
+export type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'refunded';
+export type PaymentStatus = 'unpaid' | 'paid' | 'refunded';
+export type OrderType = 'available' | 'custom';
+
+export interface OrderStatusHistoryItem {
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  note?: string;
+  timestamp: string;
+  updatedBy?: string;
+}
+
 export interface Order {
   id: string;
   orderCode: string;
+  numericOrderCode?: number;
   productId: string;
   productTitle: string;
   productPrice: number;
+  orderType?: OrderType;
+  customRequirements?: string;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
-  status: 'pending' | 'completed' | 'refunded';
+  status: OrderStatus;
+  paymentStatus?: PaymentStatus;
   paymentMethod: 'vietqr' | 'momo' | 'bank_transfer' | 'card';
   transactionId?: string;
+  paidAt?: string;
   licenseKey: string;
+  handoverUrl?: string;
+  downloadUrl?: string;
+  handoverNotes?: string;
+  deliveredAt?: string;
+  notifiedPaid?: boolean;
+  notifiedAt?: string;
+  statusHistory?: OrderStatusHistoryItem[];
   createdAt: string;
   completedAt?: string;
   refundedAt?: string;
@@ -82,7 +106,19 @@ export interface License {
   downloadCount: number;
   maxDownloads: number;
   isActive: boolean;
+  handoverUrl?: string;
+  handoverNotes?: string;
   createdAt: string;
+}
+
+export interface CustomerSummary {
+  email: string;
+  name: string;
+  phone?: string;
+  totalOrders: number;
+  totalSpent: number;
+  orders: Order[];
+  lastOrderDate: string;
 }
 
 export interface LocalFolderScanResult {

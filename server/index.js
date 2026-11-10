@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { createZipFromFolder } from './packager.js';
 import { 
@@ -19,6 +20,13 @@ import {
   updateLicenseInSupabase,
   verifyLicenseInSupabase 
 } from './supabase.js';
+import { 
+  getPayOSConfig, 
+  getPayOSClient, 
+  createPaymentLink, 
+  getPaymentStatus, 
+  verifyWebhook 
+} from './payos.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,7 +70,62 @@ if (fs.existsSync(webDist)) {
       res.setHeader('Expires', '0');
     }
   }));
+  app.get('/', (req, res) => {
+    res.redirect('/store/');
+  });
 }
+
+// Native Desktop Window Controls
+app.post('/api/desktop/window/minimize', (req, res) => {
+  const exePath = path.join(__dirname, 'kweb_window.exe');
+  if (fs.existsSync(exePath)) {
+    exec(`"${exePath}" min`, (err) => {
+      if (err) console.warn('kweb_window.exe error:', err.message);
+      res.json({ success: true, message: 'Window minimized' });
+    });
+  } else {
+    const scriptPath = path.join(__dirname, 'minimize.ps1');
+    exec(`powershell -ExecutionPolicy Bypass -File "${scriptPath}"`, (err) => {
+      if (err) console.warn('Minimize script error:', err.message);
+      res.json({ success: true, message: 'Window minimized' });
+    });
+  }
+});
+
+app.post('/api/desktop/window/maximize', (req, res) => {
+  const exePath = path.join(__dirname, 'kweb_window.exe');
+  if (fs.existsSync(exePath)) {
+    exec(`"${exePath}" max`, (err) => {
+      if (err) console.warn('kweb_window.exe error:', err.message);
+      res.json({ success: true, message: 'Window maximized' });
+    });
+  } else {
+    res.json({ success: true, message: 'Window maximize triggered' });
+  }
+});
+
+app.post('/api/desktop/window/close', (req, res) => {
+  const exePath = path.join(__dirname, 'kweb_window.exe');
+  if (fs.existsSync(exePath)) {
+    exec(`"${exePath}" close`, () => {});
+  }
+  const scriptPath = path.join(__dirname, 'close.ps1');
+  exec(`powershell -ExecutionPolicy Bypass -File "${scriptPath}"`, (err) => {
+    if (err) {
+      console.warn('Close script error:', err.message);
+    }
+    res.json({ success: true, message: 'Window closed' });
+  });
+});
+
+app.post('/api/desktop/open-url', (req, res) => {
+  const { url } = req.body;
+  const target = url || 'http://localhost:4000/store';
+  exec(`start "" "${target}"`, (err) => {
+    if (err) console.warn('Open URL error:', err.message);
+    res.json({ success: true, url: target });
+  });
+});
 
 // Initial Database Loader
 function loadDatabase() {
@@ -88,123 +151,14 @@ function loadDatabase() {
 
   const initialData = {
     settings: {
-      bankAccount: '19036888899999',
+      bankAccount: '9933487119',
       bankName: 'Techcombank',
-      accountName: 'NGUYEN STORE OWNER',
+      accountName: 'TRAN DANG KHOA',
       autoApproveQr: true,
       desktopNotify: true,
       autoZipExclude: true
     },
-    products: [
-      {
-        id: 'site-001',
-        slug: 'aura-luxury-spa',
-        title: 'Aura Spa & Clinic - Website Đặt Lịch & Chăm Sóc Sắc Đẹp',
-        tagline: 'Giao diện cao cấp chuẩn sang trọng, tích hợp đặt lịch hẹn trực tiếp qua Zalo/Email',
-        description: 'Mẫu website hoàn chỉnh dành riêng cho Spa, Thẩm mỹ viện, Phòng khám thẩm mỹ hoặc Salon tóc cao cấp. Tối ưu trải nghiệm mobile, bảng giá dịch vụ có hiệu ứng accordion, thư viện feedback khách hàng.',
-        price: 690000,
-        originalPrice: 1500000,
-        category: 'services',
-        techStack: ['HTML5', 'Tailwind CSS', 'JavaScript', 'Google Fonts'],
-        thumbnail: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
-          'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=1200&q=80'
-        ],
-        demoUrl: `http://localhost:${PORT}/demos/aura-spa/index.html`,
-        status: 'published',
-        downloadFileName: 'aura-spa-clinic-nextjs-v1.zip',
-        fileSize: '4.5 KB',
-        viewsCount: 1,
-        createdAt: '2026-10-15',
-        features: [
-          'Giao diện Luxury tone màu be & vàng đồng chuẩn quốc tế',
-          'Form đặt lịch tư vấn gửi ngay vào Google Sheets hoặc Email',
-          'Bảng so sánh dịch vụ & bảng giá minh bạch',
-          'Tối ưu chuẩn SEO 100/100, chuẩn tốc độ di động Google Core Web Vitals',
-          'Kèm hướng dẫn thay đổi logo, hình ảnh, văn bản chỉ trong 15 phút'
-        ],
-        pagesCount: 5,
-        lighthouse: { performance: 98, accessibility: 100, bestPractices: 96, seo: 100 },
-        includedAssets: [
-          'Mã nguồn website hoàn chỉnh',
-          'File package.json và hướng dẫn cài đặt',
-          'Bộ ảnh bản quyền HD không gắn watermark',
-          'Tài liệu hướng dẫn deploy lên Vercel/Netlify miễn phí trọn đời'
-        ],
-        tags: ['Spa', 'Clinic', 'Thẩm mỹ viện', 'Đặt lịch']
-      },
-      {
-        id: 'site-002',
-        slug: 'artisancoffee-roasters',
-        title: 'Artisan Brew - Website Quán Cafe & Đặt Hàng Trực Tuyến',
-        tagline: 'Website quán cà phê phong cách mộc mạc tối giản, menu điện tử và đặt mang về',
-        description: 'Dành cho chuỗi quán cafe, tiệm bánh ngọt hoặc bistro. Tích hợp menu QR điện tử có phân loại món, giỏ hàng popup nhẹ nhàng không cần tải lại trang.',
-        price: 550000,
-        originalPrice: 1200000,
-        category: 'restaurant',
-        techStack: ['HTML5', 'Tailwind CSS', 'JavaScript'],
-        thumbnail: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80'
-        ],
-        demoUrl: `http://localhost:${PORT}/demos/artisan-brew/index.html`,
-        status: 'published',
-        downloadFileName: 'artisan-coffee-vite-v1.zip',
-        fileSize: '2.9 KB',
-        viewsCount: 1,
-        createdAt: '2026-10-20',
-        features: [
-          'Menu QR điện tử hỗ trợ ảnh món ăn sắc nét',
-          'Giỏ hàng nhanh tính tiền tự động',
-          'Tích hợp bản đồ vị trí quán Google Maps',
-          'Hỗ trợ chế độ Dark Mode ấm áp ban đêm'
-        ],
-        pagesCount: 4,
-        lighthouse: { performance: 99, accessibility: 98, bestPractices: 95, seo: 98 },
-        includedAssets: [
-          'Source code sạch và cấu hình sẵn',
-          'File JSON cấu hình menu dễ chỉnh sửa',
-          'Tài liệu hướng dẫn triển khai lên Netlify/Cloudflare'
-        ],
-        tags: ['Cafe', 'Nhà hàng', 'Menu QR', 'F&B']
-      },
-      {
-        id: 'site-003',
-        slug: 'nova-saas-landing',
-        title: 'Nova Launch - Landing Page Bán Phần Mềm & Khóa Học',
-        tagline: 'Landing page phong cách Silicon Valley tỷ lệ chuyển đổi cao, bảng giá linh hoạt',
-        description: 'Thiết kế theo chuẩn SaaS hiện đại nhất: Hero section cuốn hút với social proof, mô phỏng tính năng sản phẩm tương tác, bảng giá 3 gói dịch vụ, FAQ accordion.',
-        price: 490000,
-        originalPrice: 990000,
-        category: 'landing-page',
-        techStack: ['HTML5', 'Tailwind CSS', 'JavaScript'],
-        thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80'
-        ],
-        demoUrl: `http://localhost:${PORT}/demos/nova-saas/index.html`,
-        status: 'published',
-        downloadFileName: 'nova-saas-landing-v1.zip',
-        fileSize: '3.7 KB',
-        viewsCount: 1,
-        createdAt: '2026-10-05',
-        features: [
-          'Tối ưu chuyển đổi đã A/B test hiệu quả',
-          'Bảng giá chuyển đổi tháng/năm (Billing Switcher)',
-          'Hộp thoại Lead Capture bắt email tự động',
-          'Hiệu ứng scroll mượt mà không giật lag'
-        ],
-        pagesCount: 3,
-        lighthouse: { performance: 100, accessibility: 100, bestPractices: 100, seo: 100 },
-        includedAssets: [
-          'Mã nguồn hoàn chỉnh',
-          'Bản thiết kế cấu trúc chi tiết',
-          'Tài liệu hướng dẫn deploy'
-        ],
-        tags: ['Landing Page', 'SaaS', 'Phần mềm']
-      }
-    ],
+    products: [],
     orders: [],
     licenses: []
   };
@@ -213,17 +167,59 @@ function loadDatabase() {
   return initialData;
 }
 
+function normalizeDatabase(data) {
+  if (!data) return data;
+  if (!Array.isArray(data.products)) data.products = [];
+  if (!Array.isArray(data.orders)) data.orders = [];
+  if (!Array.isArray(data.licenses)) data.licenses = [];
+  
+  data.orders.forEach(order => {
+    if (!order.orderType) order.orderType = 'available';
+    if (!order.customRequirements) order.customRequirements = '';
+    if (!order.paymentStatus) {
+      if (order.status === 'completed') order.paymentStatus = 'paid';
+      else if (order.status === 'refunded') order.paymentStatus = 'refunded';
+      else order.paymentStatus = 'unpaid';
+    }
+    if (order.status === 'refunded') {
+      order.status = 'cancelled';
+      order.paymentStatus = 'refunded';
+    }
+    if (!order.downloadUrl && order.licenseKey) {
+      order.downloadUrl = `/api/download/${order.licenseKey}`;
+    }
+    if (!order.handoverUrl) order.handoverUrl = '';
+    if (!order.handoverNotes) order.handoverNotes = '';
+    if (!order.deliveredAt && order.status === 'completed') {
+      order.deliveredAt = order.completedAt || order.createdAt;
+    }
+    if (!Array.isArray(order.statusHistory) || order.statusHistory.length === 0) {
+      order.statusHistory = [
+        {
+          status: order.status,
+          paymentStatus: order.paymentStatus || 'unpaid',
+          note: 'Khởi tạo đơn hàng',
+          timestamp: order.createdAt || new Date().toISOString(),
+          updatedBy: 'system'
+        }
+      ];
+    }
+  });
+
+  return data;
+}
+
 function saveDatabase(data) {
   fs.writeFileSync(dbFile, JSON.stringify(data, null, 2), 'utf-8');
 }
 
-let db = loadDatabase();
+let db = normalizeDatabase(loadDatabase());
 
 // Dynamically compute real stats from database records
 function calculateRealStats() {
-  const completedOrders = (db.orders || []).filter(o => o.status === 'completed');
-  const totalRevenue = completedOrders.reduce((sum, o) => sum + (Number(o.productPrice) || 0), 0);
-  const totalSales = completedOrders.length;
+  const paidOrders = (db.orders || []).filter(o => o.paymentStatus === 'paid' || o.status === 'completed');
+  const totalRevenue = paidOrders.reduce((sum, o) => sum + (Number(o.productPrice) || 0), 0);
+  const totalSales = paidOrders.length;
   const pendingOrders = (db.orders || []).filter(o => o.status === 'pending').length;
   const totalViews = (db.products || []).reduce((sum, p) => sum + (p.viewsCount || 0), 0);
 
@@ -236,8 +232,8 @@ function calculateRealStats() {
     d.setDate(d.getDate() - i);
     const dateStr = d.toISOString().split('T')[0];
     const dayName = days[d.getDay()];
-    const dayOrders = completedOrders.filter(o => {
-      const orderDate = (o.completedAt || o.createdAt || '');
+    const dayOrders = paidOrders.filter(o => {
+      const orderDate = (o.paidAt || o.completedAt || o.createdAt || '');
       return orderDate.includes(dateStr) || orderDate.includes(d.toLocaleDateString('vi-VN'));
     });
     weeklyStats.push({
@@ -250,7 +246,7 @@ function calculateRealStats() {
 
   // Calculate real category sales distribution
   const categoryStats = {};
-  completedOrders.forEach(o => {
+  paidOrders.forEach(o => {
     const prod = (db.products || []).find(p => p.id === o.productId);
     const cat = prod?.category || 'other';
     categoryStats[cat] = (categoryStats[cat] || 0) + 1;
@@ -360,15 +356,17 @@ app.post('/api/products/:id/view', (req, res) => {
 
 app.post('/api/products', async (req, res) => {
   const productData = req.body;
-  if (!productData.title || !productData.price) {
+  const existingIndex = (db.products || []).findIndex(p => p.id === productData.id);
+  const existingProd = existingIndex >= 0 ? db.products[existingIndex] : null;
+
+  if (!existingProd && (!productData.title || !productData.price)) {
     return res.status(400).json({ success: false, message: 'Vui lòng điền đủ Tên và Giá bán website' });
   }
 
-  const existingIndex = (db.products || []).findIndex(p => p.id === productData.id);
-  
   // Package real folder if localFolderPath is provided
-  let generatedZipName = productData.downloadFileName || `${productData.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-v1.zip`;
-  let calculatedSize = productData.fileSize || '5.0 MB';
+  const title = productData.title || existingProd?.title || 'website';
+  let generatedZipName = productData.downloadFileName || `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-v1.zip`;
+  let calculatedSize = productData.fileSize || existingProd?.fileSize || '5.0 MB';
 
   if (productData.localFolderPath && fs.existsSync(productData.localFolderPath)) {
     try {
@@ -422,6 +420,20 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
+app.patch('/api/products/:id', async (req, res) => {
+  const existingIndex = (db.products || []).findIndex(p => p.id === req.params.id);
+  if (existingIndex === -1) return res.status(404).json({ success: false, message: 'Không tìm thấy website' });
+  const updated = {
+    ...db.products[existingIndex],
+    ...req.body,
+    updatedAt: new Date().toISOString()
+  };
+  db.products[existingIndex] = updated;
+  saveDatabase(db);
+  saveProductToSupabase(updated).catch(e => console.error('[Supabase] Sync product error:', e));
+  res.json({ success: true, message: 'Đã cập nhật website', data: updated });
+});
+
 app.delete('/api/products/:id', (req, res) => {
   const index = (db.products || []).findIndex(p => p.id === req.params.id);
   if (index === -1) return res.status(404).json({ success: false, message: 'Không tìm thấy website' });
@@ -435,192 +447,214 @@ app.delete('/api/products/:id', (req, res) => {
   res.json({ success: true, message: 'Đã xóa website', data: deleted });
 });
 
-// Restore 5 default full-stack website templates with zip downloads and live demos
-app.post('/api/products/restore-defaults', (req, res) => {
-  const defaultItems = [
+// Restore standard default website templates
+app.post('/api/products/restore-defaults', async (req, res) => {
+  const defaultTemplates = [
     {
-      id: 'site-001',
-      slug: 'aura-luxury-spa',
-      title: 'Aura Spa & Clinic - Website Đặt Lịch & Chăm Sóc Sắc Đẹp',
-      tagline: 'Giao diện cao cấp chuẩn sang trọng, tích hợp đặt lịch hẹn trực tiếp qua Zalo/Email',
-      description: 'Mẫu website hoàn chỉnh dành riêng cho Spa, Thẩm mỹ viện, Phòng khám thẩm mỹ hoặc Salon tóc cao cấp. Tối ưu trải nghiệm mobile, bảng giá dịch vụ có hiệu ứng accordion, thư viện feedback khách hàng.',
+      id: "site-aura-spa",
+      slug: "aura-spa---website-template",
+      title: "Aura Spa & Clinic - Website Dịch Vụ & Đặt Lịch",
+      tagline: "Giao diện spa làm đẹp sang trọng, chuẩn SEO và tích hợp form đặt lịch",
+      description: "Mẫu website chuyên nghiệp dành cho thẩm mỹ viện, spa và trung tâm làm đẹp. Tối ưu tốc độ tải trang 100/100, chuẩn thiết bị di động, tích hợp bảng giá dịch vụ và form đặt lịch hẹn online.",
       price: 690000,
-      originalPrice: 1500000,
-      category: 'services',
-      techStack: ['HTML5', 'Tailwind CSS', 'JavaScript', 'Google Fonts'],
-      thumbnail: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=1200&q=80'
-      ],
-      demoUrl: `http://localhost:${PORT}/demos/aura-spa/index.html`,
-      status: 'published',
-      downloadFileName: 'aura-spa-clinic-nextjs-v1.zip',
-      fileSize: '4.5 KB',
-      viewsCount: 1,
-      createdAt: '2026-10-15',
+      originalPrice: 1380000,
+      category: "services",
+      techStack: ["HTML5", "Tailwind CSS", "JavaScript", "Responsive"],
+      thumbnail: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+      gallery: ["https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80"],
+      demoUrl: "/demos/aura-spa/index.html",
+      downloadFileName: "aura-spa-v1.zip",
+      fileSize: "4.5 KB",
+      rating: 5,
+      reviewsCount: 12,
+      viewsCount: 45,
+      salesCount: 8,
+      status: "published",
+      createdAt: "2026-11-08T00:00:00.000Z",
       features: [
-        'Giao diện Luxury tone màu be & vàng đồng chuẩn quốc tế',
-        'Form đặt lịch tư vấn gửi ngay vào Google Sheets hoặc Email',
-        'Bảng so sánh dịch vụ & bảng giá minh bạch',
-        'Tối ưu chuẩn SEO 100/100, chuẩn tốc độ di động Google Core Web Vitals',
-        'Kèm hướng dẫn thay đổi logo, hình ảnh, văn bản chỉ trong 15 phút'
-      ],
-      pagesCount: 5,
-      lighthouse: { performance: 98, accessibility: 100, bestPractices: 96, seo: 100 },
-      includedAssets: [
-        'Mã nguồn website hoàn chỉnh',
-        'File package.json và hướng dẫn cài đặt',
-        'Bộ ảnh bản quyền HD không gắn watermark',
-        'Tài liệu hướng dẫn deploy lên Vercel/Netlify miễn phí trọn đời'
-      ],
-      tags: ['Spa', 'Clinic', 'Thẩm mỹ viện', 'Đặt lịch']
-    },
-    {
-      id: 'site-002',
-      slug: 'artisancoffee-roasters',
-      title: 'Artisan Brew - Website Quán Cafe & Đặt Hàng Trực Tuyến',
-      tagline: 'Website quán cà phê phong cách mộc mạc tối giản, menu điện tử và đặt mang về',
-      description: 'Dành cho chuỗi quán cafe, tiệm bánh ngọt hoặc bistro. Tích hợp menu QR điện tử có phân loại món, giỏ hàng popup nhẹ nhàng không cần tải lại trang.',
-      price: 550000,
-      originalPrice: 1200000,
-      category: 'restaurant',
-      techStack: ['HTML5', 'Tailwind CSS', 'JavaScript'],
-      thumbnail: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80'
-      ],
-      demoUrl: `http://localhost:${PORT}/demos/artisan-brew/index.html`,
-      status: 'published',
-      downloadFileName: 'artisan-coffee-vite-v1.zip',
-      fileSize: '2.9 KB',
-      viewsCount: 1,
-      createdAt: '2026-10-20',
-      features: [
-        'Menu QR điện tử hỗ trợ ảnh món ăn sắc nét',
-        'Giỏ hàng nhanh tính tiền tự động',
-        'Tích hợp bản đồ vị trí quán Google Maps',
-        'Hỗ trợ chế độ Dark Mode ấm áp ban đêm'
+        "Đầy đủ mã nguồn sạch chuẩn W3C",
+        "Form đặt lịch hẹn trực tuyến kèm thông báo",
+        "Tối ưu hóa Lighthouse 98+",
+        "Tương thích 100% thiết bị di động"
       ],
       pagesCount: 4,
-      lighthouse: { performance: 99, accessibility: 98, bestPractices: 95, seo: 98 },
-      includedAssets: [
-        'Source code sạch và cấu hình sẵn',
-        'File JSON cấu hình menu dễ chỉnh sửa',
-        'Tài liệu hướng dẫn triển khai lên Netlify/Cloudflare'
-      ],
-      tags: ['Cafe', 'Nhà hàng', 'Menu QR', 'F&B']
+      lighthouse: { performance: 98, accessibility: 100, bestPractices: 100, seo: 100 },
+      includedAssets: ["Mã nguồn HTML/CSS/JS", "Tài liệu hướng dẫn deploy", "Hình ảnh bản quyền Unsplash"],
+      tags: ["Spa", "Làm đẹp", "Dịch vụ", "Đặt lịch"]
     },
     {
-      id: 'site-003',
-      slug: 'nova-saas-landing',
-      title: 'Nova Launch - Landing Page Bán Phần Mềm & Khóa Học',
-      tagline: 'Landing page phong cách Silicon Valley tỷ lệ chuyển đổi cao, bảng giá linh hoạt',
-      description: 'Thiết kế theo chuẩn SaaS hiện đại nhất: Hero section cuốn hút với social proof, mô phỏng tính năng sản phẩm tương tác, bảng giá 3 gói dịch vụ, FAQ accordion.',
+      id: "site-profile-01",
+      slug: "forge-gundam-3d-profile",
+      title: "Forge 3D - Portfolio Cá Nhân 3D WebGL & Mecha Gundam",
+      tagline: "Giao diện portfolio tương tác bàn máy tính & robot Gundam 3D, tích hợp Web Audio Synthesizer và Three.js",
+      description: "Mẫu website portfolio phong cách phòng thí nghiệm cơ khí tương tác 3D WebGL cực độc đáo. Hỗ trợ xoay camera 360 độ, hiệu ứng âm thanh synthesizer phản hồi từng click chuột, bảng thông số kỹ thuật Telemetry và hồ sơ dự án chuyên nghiệp dành cho lập trình viên, kỹ sư công nghệ.",
       price: 490000,
       originalPrice: 990000,
-      category: 'landing-page',
-      techStack: ['HTML5', 'Tailwind CSS', 'JavaScript'],
-      thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80'
-      ],
-      demoUrl: `http://localhost:${PORT}/demos/nova-saas/index.html`,
-      status: 'published',
-      downloadFileName: 'nova-saas-landing-v1.zip',
-      fileSize: '3.7 KB',
-      viewsCount: 1,
-      createdAt: '2026-10-05',
+      category: "portfolio",
+      techStack: ["React 18", "Three.js", "Vite", "TypeScript", "WebGL", "Web Audio API"],
+      thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80",
+      gallery: ["https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80"],
+      demoUrl: "/demos/forge-profile/index.html",
+      downloadFileName: "forge-gundam-3d-profile-v1.zip",
+      fileSize: "18.2 MB",
+      rating: 5,
+      reviewsCount: 15,
+      viewsCount: 120,
+      salesCount: 14,
+      status: "published",
+      createdAt: "2026-11-08T00:00:00.000Z",
       features: [
-        'Tối ưu chuyển đổi đã A/B test hiệu quả',
-        'Bảng giá chuyển đổi tháng/năm (Billing Switcher)',
-        'Hộp thoại Lead Capture bắt email tự động',
-        'Hiệu ứng scroll mượt mà không giật lag'
+        "Giao diện 3D WebGL với mô hình Mecha Gundam & Workstation tương tác 360 độ",
+        "Âm thanh Web Audio API procedural synthesizer phản hồi từng click chuột",
+        "Bảng thông số Telemetry và Profile lập trình viên phong cách Terminal",
+        "Tối ưu 60 FPS mượt mà trên trình duyệt hiện đại",
+        "Mã nguồn sạch, kèm hướng dẫn deploy lên Cloudflare / Vercel"
       ],
-      pagesCount: 3,
-      lighthouse: { performance: 100, accessibility: 100, bestPractices: 100, seo: 100 },
-      includedAssets: [
-        'Mã nguồn hoàn chỉnh',
-        'Bản thiết kế cấu trúc chi tiết',
-        'Tài liệu hướng dẫn deploy'
-      ],
-      tags: ['Landing Page', 'SaaS', 'Phần mềm']
+      pagesCount: 5,
+      lighthouse: { performance: 96, accessibility: 100, bestPractices: 98, seo: 100 },
+      includedAssets: ["Toàn bộ mã nguồn React + Three.js", "Gói models 3D procedural và bộ synthesizer âm thanh"],
+      tags: ["Portfolio", "3D WebGL", "Three.js", "React"]
     },
     {
-      id: 'site-004',
-      slug: 'zenith-minimal-portfolio',
-      title: 'Zenith Studio - Portfolio Cá Nhân & Agency Sáng Tạo',
-      tagline: 'Showcase dự án phong cách tối giản Bắc Âu, bộ lọc dự án mượt mà',
-      description: 'Website hồ sơ năng lực dành cho UI/UX Designer, Nhiếp ảnh gia, Lập trình viên hoặc Creative Agency. Tập trung vào hình ảnh chất lượng cao và chữ thanh lịch.',
-      price: 390000,
-      originalPrice: 790000,
-      category: 'portfolio',
-      techStack: ['HTML5', 'Tailwind CSS', 'JavaScript'],
-      thumbnail: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80'
-      ],
-      demoUrl: `http://localhost:${PORT}/demos/zenith-portfolio/index.html`,
-      status: 'published',
-      downloadFileName: 'zenith-portfolio-astro.zip',
-      fileSize: '1.5 KB',
-      viewsCount: 1,
-      createdAt: '2026-10-12',
+      id: "site-nova-saas",
+      slug: "nova-saas-platform",
+      title: "Nova SaaS - Giao Diện Bảng Điều Khiển AI & Cloud SaaS",
+      tagline: "Landing page chuyển đổi cao dành cho ứng dụng AI, phần mềm SaaS và Startup công nghệ",
+      description: "Bộ giao diện hiện đại phong cách Futuristic Glassmorphism dành cho các sản phẩm SaaS, Cloud và trí tuệ nhân tạo AI. Tích hợp bảng giá linh hoạt, so sánh tính năng và đánh giá khách hàng.",
+      price: 890000,
+      originalPrice: 1790000,
+      category: "saas",
+      techStack: ["Next.js", "Tailwind CSS", "Framer Motion", "TypeScript"],
+      thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
+      gallery: ["https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"],
+      demoUrl: "/demos/nova-saas/index.html",
+      downloadFileName: "nova-saas-v1.zip",
+      fileSize: "3.7 KB",
+      rating: 5,
+      reviewsCount: 8,
+      viewsCount: 80,
+      salesCount: 6,
+      status: "published",
+      createdAt: "2026-11-08T00:00:00.000Z",
       features: [
-        'Giao diện tối giản Bắc Âu thanh lịch',
-        'Bộ lọc dự án theo chuyên môn',
-        'Form liên hệ trực tiếp'
+        "Hiệu ứng Glassmorphism & Gradient cao cấp",
+        "Bảng so sánh gói giá Annual / Monthly động",
+        "Tối ưu tỷ lệ chuyển đổi Lead Generation",
+        "Sẵn sàng kết nối Stripe hoặc VietQR"
+      ],
+      pagesCount: 6,
+      lighthouse: { performance: 99, accessibility: 100, bestPractices: 100, seo: 100 },
+      includedAssets: ["Toàn bộ mã nguồn", "Bộ icon & vector SVG", "Tài liệu tùy biến màu thương hiệu"],
+      tags: ["SaaS", "AI", "Startup", "Landing Page"]
+    },
+    {
+      id: "site-artisan-brew",
+      slug: "artisan-brew-roastery",
+      title: "Artisan Cafe & Roastery - Web Đặt Bàn & Menu QR",
+      tagline: "Website quán cafe đặc sản, nhà hàng cao cấp với thực đơn tương tác và gọi món",
+      description: "Mẫu website thiết kế ấm áp, đậm chất mộc cho quán cafe, tiệm bánh và nhà hàng cao cấp. Tích hợp menu điện tử phân loại đồ uống, giới thiệu câu chuyện hạt cafe và đặt bàn giữ chỗ.",
+      price: 550000,
+      originalPrice: 1100000,
+      category: "restaurant",
+      techStack: ["HTML5", "CSS3 Modern", "Vanilla JS", "Micro-animations"],
+      thumbnail: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80",
+      gallery: ["https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1200&q=80"],
+      demoUrl: "/demos/artisan-brew/index.html",
+      downloadFileName: "artisan-brew-v1.zip",
+      fileSize: "2.9 KB",
+      rating: 5,
+      reviewsCount: 9,
+      viewsCount: 62,
+      salesCount: 5,
+      status: "published",
+      createdAt: "2026-11-08T00:00:00.000Z",
+      features: [
+        "Thực đơn Menu QR điện tử trực quan",
+        "Form đặt bàn giữ chỗ với xác nhận tự động",
+        "Tối ưu hình ảnh món ăn sắc nét tải cực nhanh",
+        "Tích hợp bản đồ Google Maps và hotline gọi ngay"
+      ],
+      pagesCount: 3,
+      lighthouse: { performance: 97, accessibility: 98, bestPractices: 100, seo: 100 },
+      includedAssets: ["Mã nguồn hoàn chỉnh", "Bộ hình ảnh Cafe chất lượng cao", "File hướng dẫn thay menu"],
+      tags: ["Cafe", "Nhà hàng", "F&B", "Menu QR"]
+    },
+    {
+      id: "site-vogue-store",
+      slug: "vogue-boutique-store",
+      title: "Vogue Boutique - Website Bán Hàng Thời Trang Cao Cấp",
+      tagline: "Cửa hàng thời trang online chuẩn e-commerce tối giản, thanh lịch",
+      description: "Website mua sắm thời trang phong cách Editorial phương Tây. Lưới sản phẩm tinh tế, bộ lọc danh mục mượt mà, giỏ hàng popup và tối ưu trải nghiệm mua sắm trên smartphone.",
+      price: 790000,
+      originalPrice: 1590000,
+      category: "ecommerce",
+      techStack: ["HTML5", "Tailwind CSS", "JavaScript", "Shopping Cart"],
+      thumbnail: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+      gallery: ["https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80"],
+      demoUrl: "/demos/vogue-store/index.html",
+      downloadFileName: "vogue-boutique-v1.zip",
+      fileSize: "1.6 KB",
+      rating: 5,
+      reviewsCount: 11,
+      viewsCount: 95,
+      salesCount: 9,
+      status: "published",
+      createdAt: "2026-11-08T00:00:00.000Z",
+      features: [
+        "Thiết kế Editorial thời thượng đẳng cấp",
+        "Giỏ hàng mua sắm trượt cạnh (Slide-over Cart)",
+        "Bộ sưu tập Lookbook hình ảnh sắc nét",
+        "Tích hợp checkout chuyển khoản tiện lợi"
+      ],
+      pagesCount: 5,
+      lighthouse: { performance: 98, accessibility: 100, bestPractices: 98, seo: 100 },
+      includedAssets: ["Mã nguồn cửa hàng", "Font chữ Editorial thời trang", "Hướng dẫn cấu hình giỏ hàng"],
+      tags: ["Thời trang", "E-commerce", "Shop online", "Boutique"]
+    },
+    {
+      id: "site-zenith-portfolio",
+      slug: "zenith-design-studio",
+      title: "Zenith Studio - Hồ Sơ Thiết Kế Sáng Tạo & Nhiếp Ảnh",
+      tagline: "Portfolio tương tác phong cách Minimal Dark Mode cho Designer & Creator",
+      description: "Mẫu portfolio dành cho các giám đốc nghệ thuật, UI/UX designer, nhiếp ảnh gia và agency sáng tạo. Lưới trưng bày tác phẩm dạng Masonry, hiệu ứng hover mượt mà và form liên hệ hợp tác.",
+      price: 450000,
+      originalPrice: 900000,
+      category: "portfolio",
+      techStack: ["HTML5", "CSS Grid", "Micro-interactions", "Dark Mode"],
+      thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
+      gallery: ["https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80"],
+      demoUrl: "/demos/zenith-portfolio/index.html",
+      downloadFileName: "zenith-portfolio-v1.zip",
+      fileSize: "1.8 KB",
+      rating: 5,
+      reviewsCount: 6,
+      viewsCount: 74,
+      salesCount: 7,
+      status: "published",
+      createdAt: "2026-11-08T00:00:00.000Z",
+      features: [
+        "Lưới trưng bày dự án Masonry Grid độc đáo",
+        "Chế độ nền tối Dark Mode bảo vệ mắt",
+        "Case study chi tiết cho từng tác phẩm",
+        "Tải nhanh như chớp dưới 0.5 giây"
       ],
       pagesCount: 4,
       lighthouse: { performance: 100, accessibility: 100, bestPractices: 100, seo: 100 },
-      includedAssets: [
-        'Mã nguồn HTML5/Tailwind sạch',
-        'Tài liệu cấu hình'
-      ],
-      tags: ['Portfolio', 'Minimalism', 'Designer']
-    },
-    {
-      id: 'site-005',
-      slug: 'vogue-fashion-store',
-      title: 'Vogue Boutique - Website Bán Hàng Thời Trang & Phụ Kiện',
-      tagline: 'Cửa hàng trực tuyến phong cách tạp chí, bộ lọc kích cỡ/màu sắc & giỏ hàng',
-      description: 'Website bán hàng thời trang hoàn chỉnh với giao diện dạng lookbook, trang danh sách sản phẩm có bộ lọc đa năng, giỏ hàng trượt sang trọng.',
-      price: 890000,
-      originalPrice: 2000000,
-      category: 'ecommerce',
-      techStack: ['HTML5', 'Tailwind CSS', 'JavaScript'],
-      thumbnail: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
-      gallery: [
-        'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80'
-      ],
-      demoUrl: `http://localhost:${PORT}/demos/vogue-store/index.html`,
-      status: 'published',
-      downloadFileName: 'vogue-boutique-store-v1.zip',
-      fileSize: '4.2 KB',
-      viewsCount: 1,
-      createdAt: '2026-09-28',
-      features: [
-        'Trang Shop chuyên nghiệp',
-        'Giỏ hàng nhanh',
-        'Trang Checkout mô phỏng VietQR'
-      ],
-      pagesCount: 6,
-      lighthouse: { performance: 97, accessibility: 98, bestPractices: 96, seo: 100 },
-      includedAssets: [
-        'Mã nguồn website hoàn chỉnh',
-        'Bộ banner thiết kế sẵn'
-      ],
-      tags: ['E-Commerce', 'Thời trang', 'Shop']
+      includedAssets: ["Mã nguồn portfolio", "Hiệu ứng CSS hiện đại", "Tài liệu thêm dự án mới"],
+      tags: ["Portfolio", "Designer", "Dark Mode", "Creative"]
     }
   ];
 
-  db.products = defaultItems;
+  db.products = defaultTemplates;
   saveDatabase(db);
-  seedProductsToSupabase(defaultItems).catch(() => {});
-  res.json({ success: true, message: 'Đã nạp lại 5 mẫu website vào kho!', data: defaultItems });
+
+  for (const t of defaultTemplates) {
+    saveProductToSupabase(t).catch(() => {});
+  }
+
+  res.json({ success: true, message: `Đã khôi phục ${defaultTemplates.length} mẫu website mặc định`, data: db.products });
 });
 
-// Admin direct download of source code .zip package
 app.get('/api/admin/downloads/:fileName', (req, res) => {
   const fileName = path.basename(req.params.fileName);
   const zipPath = path.join(downloadsDir, fileName);
@@ -636,105 +670,625 @@ app.get('/api/orders', async (req, res) => {
   try {
     const supaOrders = await getOrdersFromSupabase();
     if (supaOrders && supaOrders.length > 0) {
-      db.orders = supaOrders;
+      const localMap = new Map((db.orders || []).map(o => [o.orderCode, o]));
+      supaOrders.forEach(so => {
+        const local = localMap.get(so.orderCode);
+        if (local) {
+          if (local.notifiedPaid) so.notifiedPaid = true;
+          if (local.notifiedAt) so.notifiedAt = local.notifiedAt;
+          if (local.numericOrderCode) so.numericOrderCode = local.numericOrderCode;
+          if (local.statusHistory) so.statusHistory = local.statusHistory;
+          if (local.handoverUrl && !so.handoverUrl) so.handoverUrl = local.handoverUrl;
+          if (local.downloadUrl && !so.downloadUrl) so.downloadUrl = local.downloadUrl;
+          if (local.handoverNotes && !so.handoverNotes) so.handoverNotes = local.handoverNotes;
+          if (local.orderType && !so.orderType) so.orderType = local.orderType;
+          if (local.customRequirements && !so.customRequirements) so.customRequirements = local.customRequirements;
+          if (local.paymentStatus && !so.paymentStatus) so.paymentStatus = local.paymentStatus;
+        }
+      });
+      const supaCodes = new Set(supaOrders.map(o => o.orderCode));
+      const notInSupa = (db.orders || []).filter(o => !supaCodes.has(o.orderCode));
+      db.orders = [...notInSupa, ...supaOrders];
       saveDatabase(db);
     }
   } catch (_) {}
-  res.json({ success: true, data: db.orders || [] });
+
+  const { status, paymentStatus, search } = req.query;
+  let items = db.orders || [];
+
+  if (status && status !== 'all') {
+    items = items.filter(o => o.status === status);
+  }
+  if (paymentStatus && paymentStatus !== 'all') {
+    items = items.filter(o => o.paymentStatus === paymentStatus);
+  }
+  if (search) {
+    const s = search.toLowerCase();
+    items = items.filter(o => 
+      o.orderCode.toLowerCase().includes(s) ||
+      o.customerName.toLowerCase().includes(s) ||
+      o.customerEmail.toLowerCase().includes(s) ||
+      (o.licenseKey && o.licenseKey.toLowerCase().includes(s))
+    );
+  }
+
+  res.json({ success: true, count: items.length, data: items });
 });
 
-app.post('/api/orders', (req, res) => {
-  const { productId, customerName, customerEmail, customerPhone, paymentMethod = 'vietqr' } = req.body;
-  const product = (db.products || []).find(p => p.id === productId);
-  if (!product) return res.status(404).json({ success: false, message: 'Website không tồn tại' });
+// Single Order Detail
+app.get('/api/orders/:orderCode', (req, res) => {
+  const order = (db.orders || []).find(o => o.orderCode === req.params.orderCode || String(o.numericOrderCode) === req.params.orderCode);
+  if (!order) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+  const lic = (db.licenses || []).find(l => l.orderCode === order.orderCode || l.key === order.licenseKey);
+  res.json({ success: true, data: { ...order, license: lic || null } });
+});
 
-  const randomCode = Math.floor(1000 + Math.random() * 9000);
-  const orderCode = `ORD-${randomCode}`;
-  const licenseKey = `${product.slug.substring(0, 4).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}-2026`;
+function completeOrder(order, transactionId = null, updatedBy = 'admin', handoverDetails = {}) {
+  order.status = 'completed';
+  order.paymentStatus = 'paid';
+  order.completedAt = new Date().toISOString();
+  order.paidAt = order.paidAt || order.completedAt;
+  order.deliveredAt = order.deliveredAt || order.completedAt;
+  order.transactionId = transactionId || order.transactionId || `TXN-${Date.now().toString().slice(-8)}`;
 
-  const newOrder = {
-    id: `ord-${Date.now()}`,
-    orderCode,
-    productId: product.id,
-    productTitle: product.title,
-    productPrice: product.price,
-    customerName,
-    customerEmail,
-    customerPhone: customerPhone || '',
-    status: 'pending',
-    paymentMethod,
-    licenseKey,
-    createdAt: new Date().toISOString()
-  };
+  if (handoverDetails.handoverUrl !== undefined) order.handoverUrl = handoverDetails.handoverUrl;
+  if (handoverDetails.downloadUrl !== undefined) order.downloadUrl = handoverDetails.downloadUrl;
+  if (handoverDetails.handoverNotes !== undefined) order.handoverNotes = handoverDetails.handoverNotes;
 
-  db.orders.unshift(newOrder);
+  // Find or create license record
+  let license = (db.licenses || []).find(l => l.orderCode === order.orderCode || l.key === order.licenseKey);
+  if (!license) {
+    license = {
+      id: `lic-${Date.now()}`,
+      key: order.licenseKey,
+      orderCode: order.orderCode,
+      productId: order.productId,
+      customerEmail: order.customerEmail,
+      downloadCount: 0,
+      maxDownloads: 10,
+      isActive: true,
+      handoverUrl: order.handoverUrl || '',
+      handoverNotes: order.handoverNotes || '',
+      createdAt: new Date().toISOString()
+    };
+    db.licenses.unshift(license);
+  } else {
+    license.isActive = true;
+    if (order.handoverUrl) license.handoverUrl = order.handoverUrl;
+    if (order.handoverNotes) license.handoverNotes = order.handoverNotes;
+  }
+
+  // Record history
+  order.statusHistory = order.statusHistory || [];
+  order.statusHistory.push({
+    status: 'completed',
+    paymentStatus: 'paid',
+    note: handoverDetails.note || `Đơn hàng hoàn tất và bàn giao (${transactionId ? 'Giao dịch: ' + transactionId : 'Duyệt bởi ' + updatedBy})`,
+    timestamp: new Date().toISOString(),
+    updatedBy
+  });
+
   saveDatabase(db);
 
   // Sync to Supabase Cloud
-  saveOrderToSupabase(newOrder).catch(() => {});
-
-  // Use the REAL bank settings configured by the user
-  const settings = db.settings || {
-    bankAccount: '19036888899999',
-    bankName: 'Techcombank',
-    accountName: 'NGUYEN STORE OWNER'
-  };
-
-  // Generate real dynamic VietQR image with user's configured bank
-  const vietQrInfo = {
-    bankAccount: settings.bankAccount,
-    bankName: settings.bankName,
-    accountName: settings.accountName,
-    amount: product.price,
-    content: orderCode,
-    qrUrl: `https://img.vietqr.io/image/${encodeURIComponent(settings.bankName)}-${encodeURIComponent(settings.bankAccount)}-compact2.png?amount=${product.price}&addInfo=${encodeURIComponent(orderCode)}&accountName=${encodeURIComponent(settings.accountName)}`
-  };
-
-  res.status(201).json({
-    success: true,
-    data: newOrder,
-    payment: vietQrInfo
-  });
-});
-
-app.post('/api/orders/:orderCode/verify', (req, res) => {
-  const order = (db.orders || []).find(o => o.orderCode === req.params.orderCode);
-  if (!order) return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
-
-  order.status = 'completed';
-  order.completedAt = new Date().toISOString();
-  order.transactionId = `TXN-${Date.now().toString().slice(-8)}`;
-
-  // Create license record
-  const newLicense = {
-    id: `lic-${Date.now()}`,
-    key: order.licenseKey,
-    orderCode: order.orderCode,
-    productId: order.productId,
-    customerEmail: order.customerEmail,
-    downloadCount: 0,
-    maxDownloads: 5,
-    isActive: true,
-    createdAt: new Date().toISOString()
-  };
-  db.licenses.unshift(newLicense);
-  saveDatabase(db);
-
-  // Sync completed order and new license to Supabase Cloud
   updateOrderInSupabase(order.orderCode, {
     status: 'completed',
     transactionId: order.transactionId,
     completedAt: order.completedAt
   }).catch(() => {});
-  saveLicenseToSupabase(newLicense).catch(() => {});
+  saveLicenseToSupabase(license).catch(() => {});
+
+  return license;
+}
+
+function updateOrderStatus(orderCode, updates, updatedBy = 'admin') {
+  const order = (db.orders || []).find(o => o.orderCode === orderCode);
+  if (!order) return null;
+
+  if (updates.status && ['pending', 'processing', 'completed', 'cancelled', 'refunded'].includes(updates.status)) {
+    if (updates.status === 'refunded') {
+      order.status = 'cancelled';
+      order.paymentStatus = 'refunded';
+    } else {
+      order.status = updates.status;
+    }
+  }
+
+  if (updates.paymentStatus && ['unpaid', 'paid', 'refunded'].includes(updates.paymentStatus)) {
+    order.paymentStatus = updates.paymentStatus;
+    if (updates.paymentStatus === 'paid' && !order.paidAt) {
+      order.paidAt = new Date().toISOString();
+    }
+    if (updates.paymentStatus === 'refunded' && !order.refundedAt) {
+      order.refundedAt = new Date().toISOString();
+    }
+  }
+
+  if (updates.transactionId) order.transactionId = updates.transactionId;
+  if (updates.handoverUrl !== undefined) order.handoverUrl = updates.handoverUrl;
+  if (updates.downloadUrl !== undefined) order.downloadUrl = updates.downloadUrl;
+  if (updates.handoverNotes !== undefined) order.handoverNotes = updates.handoverNotes;
+
+  let lic = (db.licenses || []).find(l => l.orderCode === order.orderCode || l.key === order.licenseKey);
+  if (order.paymentStatus === 'paid' || order.status === 'completed') {
+    if (!lic) {
+      lic = {
+        id: `lic-${Date.now()}`,
+        key: order.licenseKey,
+        orderCode: order.orderCode,
+        productId: order.productId,
+        customerEmail: order.customerEmail,
+        downloadCount: 0,
+        maxDownloads: 10,
+        isActive: true,
+        handoverUrl: order.handoverUrl || '',
+        handoverNotes: order.handoverNotes || '',
+        createdAt: new Date().toISOString()
+      };
+      db.licenses.unshift(lic);
+    } else {
+      lic.isActive = true;
+      if (order.handoverUrl) lic.handoverUrl = order.handoverUrl;
+      if (order.handoverNotes) lic.handoverNotes = order.handoverNotes;
+    }
+    if (order.status === 'completed' && !order.deliveredAt) {
+      order.deliveredAt = new Date().toISOString();
+      order.completedAt = order.completedAt || order.deliveredAt;
+    }
+  } else if (order.paymentStatus === 'refunded' || order.status === 'cancelled') {
+    if (lic) lic.isActive = false;
+  }
+
+  order.statusHistory = order.statusHistory || [];
+  order.statusHistory.push({
+    status: order.status,
+    paymentStatus: order.paymentStatus,
+    note: updates.note || `Cập nhật: ${order.status} • Thanh toán: ${order.paymentStatus}`,
+    timestamp: new Date().toISOString(),
+    updatedBy
+  });
+
+  saveDatabase(db);
+
+  updateOrderInSupabase(order.orderCode, {
+    status: order.status,
+    transactionId: order.transactionId,
+    completedAt: order.completedAt
+  }).catch(() => {});
+
+  if (lic) {
+    updateLicenseInSupabase(lic.key, { isActive: lic.isActive }).catch(() => {});
+  }
+
+  return order;
+}
+
+function buildPaymentData(order, product, payosData = null) {
+  const settings = db.settings || {
+    bankAccount: '9933487119',
+    bankName: 'Techcombank',
+    accountName: 'TRAN DANG KHOA'
+  };
+
+  if (payosData) {
+    return {
+      isPayOS: true,
+      bankAccount: payosData.accountNumber || settings.bankAccount,
+      bankName: payosData.bin || settings.bankName,
+      accountName: payosData.accountName || settings.accountName,
+      amount: payosData.amount || order.productPrice,
+      content: payosData.description || order.orderCode,
+      qrUrl: payosData.qrCode || `https://img.vietqr.io/image/${encodeURIComponent(settings.bankName)}-${encodeURIComponent(settings.bankAccount)}-compact2.png?amount=${order.productPrice}&addInfo=${encodeURIComponent(order.orderCode)}&accountName=${encodeURIComponent(settings.accountName)}`,
+      checkoutUrl: payosData.checkoutUrl
+    };
+  }
+
+  return {
+    isPayOS: false,
+    bankAccount: settings.bankAccount,
+    bankName: settings.bankName,
+    accountName: settings.accountName,
+    amount: order.productPrice,
+    content: order.orderCode,
+    qrUrl: `https://img.vietqr.io/image/${encodeURIComponent(settings.bankName)}-${encodeURIComponent(settings.bankAccount)}-compact2.png?amount=${order.productPrice}&addInfo=${encodeURIComponent(order.orderCode)}&accountName=${encodeURIComponent(settings.accountName)}`
+  };
+}
+
+app.post('/api/orders', async (req, res) => {
+  const { 
+    productId, 
+    customerName, 
+    customerEmail, 
+    customerPhone, 
+    paymentMethod = 'vietqr',
+    orderType = 'available',
+    customRequirements = ''
+  } = req.body;
+
+  if (!customerName || !customerName.trim() || !customerEmail || !customerEmail.trim()) {
+    return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đầy đủ họ tên và email nhận bản quyền.' });
+  }
+
+  const product = (db.products || []).find(p => p.id === productId);
+  if (!product) return res.status(404).json({ success: false, message: 'Website không tồn tại hoặc đã ngừng kinh doanh' });
+
+  // 15-second idempotency check to prevent duplicate order creation on double clicks
+  const cleanEmail = customerEmail.trim().toLowerCase();
+  const recentOrder = (db.orders || []).find(o => 
+    o.productId === productId &&
+    o.customerEmail.toLowerCase() === cleanEmail &&
+    o.status === 'pending' &&
+    (Date.now() - new Date(o.createdAt).getTime()) < 15000
+  );
+
+  if (recentOrder) {
+    const payment = buildPaymentData(recentOrder, product);
+    return res.status(200).json({
+      success: true,
+      message: 'Đơn hàng của bạn đang được xử lý',
+      data: recentOrder,
+      payment
+    });
+  }
+
+  const numericOrderCode = Math.floor(100000 + Math.random() * 900000);
+  const orderCode = `ORD-${numericOrderCode}`;
+  const licenseKey = `${(product.slug || 'KWEB').substring(0, 4).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}-2026`;
+
+  const newOrder = {
+    id: `ord-${Date.now()}`,
+    orderCode,
+    numericOrderCode,
+    productId: product.id,
+    productTitle: product.title,
+    productPrice: Number(product.price), // Snapshot price at purchase time - immutable
+    orderType: orderType === 'custom' ? 'custom' : 'available',
+    customRequirements: customRequirements ? customRequirements.trim() : '',
+    customerName: customerName.trim(),
+    customerEmail: cleanEmail,
+    customerPhone: customerPhone ? customerPhone.trim() : '',
+    status: 'pending',
+    paymentStatus: 'unpaid',
+    paymentMethod,
+    licenseKey,
+    handoverUrl: '',
+    downloadUrl: product.downloadFileName ? `/api/admin/downloads/${product.downloadFileName}` : '',
+    handoverNotes: '',
+    createdAt: new Date().toISOString(),
+    statusHistory: [
+      {
+        status: 'pending',
+        paymentStatus: 'unpaid',
+        note: `Khách hàng tạo đơn ${orderType === 'custom' ? 'website tùy chỉnh' : 'website có sẵn'}`,
+        timestamp: new Date().toISOString(),
+        updatedBy: 'customer'
+      }
+    ]
+  };
+
+  db.orders.unshift(newOrder);
+  saveDatabase(db);
+
+  if (process.platform === 'win32') {
+    exec('powershell -NoProfile -Command "[System.Media.SystemSounds]::Asterisk.Play()"', () => {});
+  }
+
+  saveOrderToSupabase(newOrder).catch(() => {});
+
+  let payosData = null;
+  const payosConfig = getPayOSConfig();
+  if (payosConfig.isConfigured) {
+    try {
+      payosData = await createPaymentLink({
+        orderCode: numericOrderCode,
+        amount: product.price,
+        description: `KWeb ${numericOrderCode}`,
+        buyerName: customerName,
+        buyerEmail: customerEmail,
+        buyerPhone: customerPhone
+      });
+      newOrder.payosPaymentLinkId = payosData.paymentLinkId;
+      saveDatabase(db);
+    } catch (e) {
+      console.error('PayOS createPaymentLink failed, fallback to direct VietQR:', e.message);
+    }
+  }
+
+  const payment = buildPaymentData(newOrder, product, payosData);
+
+  res.status(201).json({
+    success: true,
+    data: newOrder,
+    payment
+  });
+});
+
+// Update order status, payment status, handover, notes (from EXE or Admin)
+app.patch('/api/orders/:orderCode', (req, res) => {
+  if (req.body.status && !['pending', 'processing', 'completed', 'cancelled', 'refunded'].includes(req.body.status)) {
+    return res.status(400).json({ success: false, message: 'Trạng thái đơn hàng không hợp lệ' });
+  }
+  const updated = updateOrderStatus(req.params.orderCode, req.body, req.body.updatedBy || 'admin');
+  if (!updated) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+  res.json({ success: true, message: 'Đã cập nhật đơn hàng thành công!', data: updated });
+});
+
+app.put('/api/orders/:orderCode', (req, res) => {
+  if (req.body.status && !['pending', 'processing', 'completed', 'cancelled', 'refunded'].includes(req.body.status)) {
+    return res.status(400).json({ success: false, message: 'Trạng thái đơn hàng không hợp lệ' });
+  }
+  const updated = updateOrderStatus(req.params.orderCode, req.body, req.body.updatedBy || 'admin');
+  if (!updated) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+  res.json({ success: true, message: 'Đã cập nhật đơn hàng thành công!', data: updated });
+});
+
+// Dedicated handover endpoint
+app.post('/api/orders/:orderCode/handover', (req, res) => {
+  const { handoverUrl, downloadUrl, handoverNotes, note } = req.body;
+  const updated = updateOrderStatus(req.params.orderCode, {
+    status: 'completed',
+    handoverUrl,
+    downloadUrl,
+    handoverNotes,
+    note: note || 'Bàn giao website hoàn thiện cho khách hàng'
+  }, req.body.updatedBy || 'admin');
+
+  if (!updated) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+  res.json({ success: true, message: 'Đã bàn giao website cho khách hàng thành công!', data: updated });
+});
+
+// Real-time polling endpoint to check order and payment status
+app.get('/api/orders/:orderCode/status', async (req, res) => {
+  const order = (db.orders || []).find(o => o.orderCode === req.params.orderCode || String(o.numericOrderCode) === req.params.orderCode);
+  if (!order) return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
+
+  // If already paid or completed
+  if (order.paymentStatus === 'paid' || order.status === 'completed') {
+    const lic = (db.licenses || []).find(l => l.orderCode === order.orderCode) || { key: order.licenseKey };
+    return res.json({
+      success: true,
+      isPaid: true,
+      status: order.status,
+      paymentStatus: order.paymentStatus || 'paid',
+      data: {
+        order,
+        license: lic,
+        downloadUrl: order.downloadUrl || `/api/download/${lic.key}`,
+        handoverUrl: order.handoverUrl || '',
+        handoverNotes: order.handoverNotes || ''
+      }
+    });
+  }
+
+  // If pending, check with PayOS in real time
+  if (order.numericOrderCode && getPayOSConfig().isConfigured) {
+    try {
+      const payosStatus = await getPaymentStatus(order.numericOrderCode);
+      if (payosStatus && payosStatus.isPaid) {
+        const lic = completeOrder(order, payosStatus.data?.id || `PAYOS-${Date.now()}`);
+        return res.json({
+          success: true,
+          isPaid: true,
+          status: 'completed',
+          paymentStatus: 'paid',
+          data: {
+            order,
+            license: lic,
+            downloadUrl: order.downloadUrl || `/api/download/${lic.key}`,
+            handoverUrl: order.handoverUrl || '',
+            handoverNotes: order.handoverNotes || ''
+          }
+        });
+      }
+    } catch (e) {
+      console.error('PayOS polling check error:', e.message);
+    }
+  }
 
   res.json({
     success: true,
+    isPaid: false,
+    status: order.status || 'pending',
+    paymentStatus: order.paymentStatus || 'unpaid',
+    notifiedPaid: Boolean(order.notifiedPaid),
+    message: order.notifiedPaid ? 'Đã báo chuyển tiền, đang chờ Admin duyệt' : 'Chờ khách chuyển khoản',
+    data: {
+      order,
+      handoverUrl: order.handoverUrl || '',
+      downloadUrl: order.downloadUrl || '',
+      handoverNotes: order.handoverNotes || ''
+    }
+  });
+});
+
+// Customer Tracking Endpoint
+app.post('/api/orders/track', (req, res) => {
+  const identifier = req.body.identifier || req.body.orderCode;
+  const email = req.body.email || req.body.customerEmail;
+  if (!identifier) {
+    return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mã đơn hàng hoặc mã license' });
+  }
+
+  const clean = identifier.trim().toUpperCase();
+  const cleanEmail = email ? email.trim().toLowerCase() : null;
+
+  const order = (db.orders || []).find(o => 
+    o.orderCode.toUpperCase() === clean || 
+    (o.licenseKey && o.licenseKey.toUpperCase() === clean) ||
+    String(o.numericOrderCode) === clean
+  );
+
+  if (!order) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin đơn hàng hoặc mã license trên hệ thống.' });
+  }
+
+  if (cleanEmail && order.customerEmail.toLowerCase() !== cleanEmail) {
+    return res.status(403).json({ success: false, message: 'Email không khớp với thông tin đơn hàng.' });
+  }
+
+  const lic = (db.licenses || []).find(l => l.orderCode === order.orderCode || l.key === order.licenseKey);
+  const isPaid = order.paymentStatus === 'paid' || order.status === 'completed';
+
+  res.json({
+    success: true,
+    data: {
+      orderCode: order.orderCode,
+      productTitle: order.productTitle,
+      productPrice: order.productPrice,
+      orderType: order.orderType || 'available',
+      customRequirements: order.customRequirements || '',
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      createdAt: order.createdAt,
+      deliveredAt: order.deliveredAt,
+      isPaid,
+      licenseKey: isPaid ? order.licenseKey : null,
+      handoverUrl: order.handoverUrl || '',
+      downloadUrl: isPaid ? (order.downloadUrl || `/api/download/${order.licenseKey}`) : null,
+      handoverNotes: order.handoverNotes || '',
+      remainingDownloads: lic ? Math.max(0, (lic.maxDownloads || 10) - (lic.downloadCount || 0)) : 10,
+      statusHistory: order.statusHistory || []
+    }
+  });
+});
+
+// PayOS Webhook receiver
+app.post('/api/payos/webhook', async (req, res) => {
+  try {
+    const verified = verifyWebhook(req.body);
+    if (verified && verified.orderCode) {
+      const numericCode = verified.orderCode;
+      const order = (db.orders || []).find(o => o.numericOrderCode === numericCode);
+      if (order && order.status !== 'completed') {
+        completeOrder(order, verified.reference || verified.transactionId, 'payos_webhook');
+        console.log(`[PayOS Webhook] Order ${order.orderCode} paid successfully via bank!`);
+      }
+    }
+    res.json({ success: true, message: 'Webhook received' });
+  } catch (err) {
+    console.error('[PayOS Webhook Error]:', err.message);
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// Customer notifies that they transferred money
+app.post('/api/orders/:orderCode/notify-paid', (req, res) => {
+  const order = (db.orders || []).find(o => o.orderCode === req.params.orderCode);
+  if (!order) return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
+
+  order.notifiedPaid = true;
+  order.notifiedAt = new Date().toISOString();
+  order.statusHistory = order.statusHistory || [];
+  order.statusHistory.push({
+    status: order.status,
+    paymentStatus: order.paymentStatus,
+    note: 'Khách hàng đã bấm nút báo chuyển khoản thành công',
+    timestamp: new Date().toISOString(),
+    updatedBy: 'customer'
+  });
+  saveDatabase(db);
+
+  if (process.platform === 'win32') {
+    exec('powershell -NoProfile -Command "[System.Media.SystemSounds]::Exclamation.Play()"', () => {});
+  }
+
+  updateOrderInSupabase(order.orderCode, {
+    notified_paid: true,
+    notified_at: order.notifiedAt
+  }).catch(() => {});
+
+  res.json({
+    success: true,
+    message: 'Đã gửi thông báo chuyển khoản tới Admin. Vui lòng đợi trong giây lát để Admin kiểm tra và duyệt đơn!',
+    data: order
+  });
+});
+
+// Admin approves an order manually (from Desktop app or Admin Portal)
+app.post('/api/orders/:orderCode/approve', (req, res) => {
+  const order = (db.orders || []).find(o => o.orderCode === req.params.orderCode);
+  if (!order) return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
+
+  const newLicense = completeOrder(order, req.body.transactionId || 'MANUAL-ADMIN', req.body.updatedBy || 'admin');
+
+  res.json({
+    success: true,
+    message: `Đã duyệt đơn ${order.orderCode} và cấp License Key thành công!`,
+    data: {
+      order,
+      license: newLicense,
+      downloadUrl: order.downloadUrl || `/api/download/${newLicense.key}`
+    }
+  });
+});
+
+// Admin updates shop bank settings
+app.post('/api/admin/settings/bank', (req, res) => {
+  const { bankName, bankAccount, accountName } = req.body;
+  if (!bankName || !bankAccount || !accountName) {
+    return res.status(400).json({ success: false, message: 'Thiếu thông tin ngân hàng' });
+  }
+
+  db.settings = db.settings || {};
+  db.settings.bankName = bankName.trim();
+  db.settings.bankAccount = bankAccount.trim();
+  db.settings.accountName = accountName.trim().toUpperCase();
+  saveDatabase(db);
+
+  res.json({
+    success: true,
+    message: 'Đã cập nhật thông tin tài khoản ngân hàng thành công!',
+    data: db.settings
+  });
+});
+
+// Get current settings
+app.get('/api/admin/settings', (req, res) => {
+  res.json({
+    success: true,
+    data: db.settings || {
+      bankAccount: '9933487119',
+      bankName: 'Techcombank',
+      accountName: 'TRAN DANG KHOA'
+    }
+  });
+});
+
+app.post('/api/orders/:orderCode/verify', async (req, res) => {
+  const order = (db.orders || []).find(o => o.orderCode === req.params.orderCode);
+  if (!order) return res.status(404).json({ success: false, message: 'Đơn hàng không tồn tại' });
+
+  if (order.numericOrderCode && getPayOSConfig().isConfigured) {
+    try {
+      const payosStatus = await getPaymentStatus(order.numericOrderCode);
+      if (!payosStatus || !payosStatus.isPaid) {
+        return res.status(400).json({
+          success: false,
+          isPaid: false,
+          message: 'Hệ thống ngân hàng chưa ghi nhận tiền vào tài khoản. Vui lòng quét mã QR chuyển đúng số tiền và nội dung, sau đó thử lại sau ít giây!'
+        });
+      }
+    } catch (err) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể kết nối đến cổng thanh toán PayOS để xác thực: ' + err.message
+      });
+    }
+  }
+
+  const newLicense = completeOrder(order, null, 'verify_endpoint');
+
+  res.json({
+    success: true,
+    isPaid: true,
     message: 'Thanh toán thành công! Đã kích hoạt mã bản quyền và mở khóa tải file mã nguồn.',
     data: {
       order,
       license: newLicense,
-      downloadUrl: `/api/download/${newLicense.key}`
+      downloadUrl: order.downloadUrl || `/api/download/${newLicense.key}`
     }
   });
 });
@@ -745,23 +1299,31 @@ app.post('/api/orders/:orderCode/refund', (req, res) => {
   if (!order) return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
 
   const { reason, refundTransactionId } = req.body || {};
-  order.status = 'refunded';
+  order.status = 'cancelled';
+  order.paymentStatus = 'refunded';
   order.refundedAt = new Date().toISOString();
   order.refundReason = reason || 'Hoàn tiền theo yêu cầu khách hàng';
   order.refundTransactionId = refundTransactionId || `REF-${Date.now().toString().slice(-8)}`;
 
-  // Deactivate the associated license key so customer can no longer download
   const lic = (db.licenses || []).find(l => l.orderCode === order.orderCode || l.key === order.licenseKey);
   if (lic) {
     lic.isActive = false;
     updateLicenseInSupabase(lic.key, { isActive: false }).catch(() => {});
   }
 
+  order.statusHistory = order.statusHistory || [];
+  order.statusHistory.push({
+    status: 'cancelled',
+    paymentStatus: 'refunded',
+    note: `Hoàn tiền và hủy đơn: ${order.refundReason} (Mã GD hoàn: ${order.refundTransactionId})`,
+    timestamp: new Date().toISOString(),
+    updatedBy: 'admin'
+  });
+
   saveDatabase(db);
 
-  // Sync to Supabase
   updateOrderInSupabase(order.orderCode, {
-    status: 'refunded',
+    status: 'cancelled',
     refundedAt: order.refundedAt
   }).catch(() => {});
 
@@ -779,7 +1341,6 @@ app.delete('/api/orders/:orderCode', (req, res) => {
 
   const deletedOrder = db.orders.splice(index, 1)[0];
 
-  // Remove associated license
   const licIndex = (db.licenses || []).findIndex(l => l.orderCode === deletedOrder.orderCode || l.key === deletedOrder.licenseKey);
   if (licIndex !== -1) {
     db.licenses.splice(licIndex, 1);
@@ -787,7 +1348,6 @@ app.delete('/api/orders/:orderCode', (req, res) => {
 
   saveDatabase(db);
 
-  // Sync deletion to Supabase Cloud
   deleteOrderFromSupabase(deletedOrder.orderCode).catch(() => {});
 
   res.json({
@@ -797,21 +1357,92 @@ app.delete('/api/orders/:orderCode', (req, res) => {
   });
 });
 
-// 3. License Verification & Real File Download
+// Customer Directory
+app.get('/api/customers', (req, res) => {
+  const customerMap = new Map();
+  (db.orders || []).forEach(o => {
+    if (!o.customerEmail) return;
+    const emailKey = o.customerEmail.toLowerCase().trim();
+    if (!customerMap.has(emailKey)) {
+      customerMap.set(emailKey, {
+        email: emailKey,
+        name: o.customerName || 'Khách hàng',
+        phone: o.customerPhone || '',
+        totalOrders: 0,
+        totalSpent: 0,
+        orders: [],
+        lastOrderDate: o.createdAt || ''
+      });
+    }
+    const cust = customerMap.get(emailKey);
+    cust.totalOrders += 1;
+    if (o.paymentStatus === 'paid' || o.status === 'completed') {
+      cust.totalSpent += Number(o.productPrice) || 0;
+    }
+    cust.orders.push(o);
+    if (!cust.phone && o.customerPhone) cust.phone = o.customerPhone;
+    if (new Date(o.createdAt) > new Date(cust.lastOrderDate)) {
+      cust.lastOrderDate = o.createdAt;
+      cust.name = o.customerName || cust.name;
+    }
+  });
+
+  const customers = Array.from(customerMap.values()).sort((a, b) => b.totalSpent - a.totalSpent);
+  res.json({ success: true, count: customers.length, data: customers });
+});
+
+// 3. License Verification & Real File Download (Dual lookup by key or orderCode)
 app.get('/api/licenses/verify/:key', (req, res) => {
-  const lic = (db.licenses || []).find(l => l.key.toUpperCase() === req.params.key.toUpperCase());
-  if (!lic || !lic.isActive) {
-    return res.status(404).json({ success: false, message: 'Mã License không hợp lệ hoặc đã bị khóa.' });
+  const cleanKey = req.params.key.trim().toUpperCase();
+  
+  const lic = (db.licenses || []).find(l => l.key.toUpperCase() === cleanKey || l.orderCode.toUpperCase() === cleanKey);
+  const order = (db.orders || []).find(o => o.licenseKey.toUpperCase() === cleanKey || o.orderCode.toUpperCase() === cleanKey);
+
+  if (!lic && !order) {
+    return res.status(404).json({ success: false, message: 'Mã License hoặc đơn hàng không tồn tại hoặc đã hết hạn.' });
   }
 
-  const product = (db.products || []).find(p => p.id === lic.productId);
+  const resolvedOrder = order || (db.orders || []).find(o => o.orderCode === lic?.orderCode);
+  const resolvedLic = lic || (db.licenses || []).find(l => l.orderCode === order?.orderCode) || {
+    key: order.licenseKey,
+    isActive: order.status === 'completed' || order.paymentStatus === 'paid',
+    downloadCount: 0,
+    maxDownloads: 10
+  };
+
+  const product = (db.products || []).find(p => p.id === (resolvedOrder?.productId || resolvedLic?.productId));
+  const isPaid = resolvedOrder ? (resolvedOrder.paymentStatus === 'paid' || resolvedOrder.status === 'completed') : resolvedLic.isActive;
+
   res.json({
     success: true,
     data: {
-      license: lic,
-      productTitle: product ? product.title : 'Template Website',
-      downloadFileName: product ? product.downloadFileName : 'source-code.zip',
-      remainingDownloads: lic.maxDownloads - lic.downloadCount
+      license: {
+        key: resolvedLic.key,
+        isActive: resolvedLic.isActive !== false,
+        customerEmail: resolvedOrder?.customerEmail || resolvedLic.customerEmail,
+        downloadCount: resolvedLic.downloadCount || 0,
+        maxDownloads: resolvedLic.maxDownloads || 10,
+        createdAt: resolvedLic.createdAt
+      },
+      order: resolvedOrder ? {
+        orderCode: resolvedOrder.orderCode,
+        status: resolvedOrder.status,
+        paymentStatus: resolvedOrder.paymentStatus,
+        orderType: resolvedOrder.orderType,
+        customRequirements: resolvedOrder.customRequirements,
+        productTitle: resolvedOrder.productTitle,
+        productPrice: resolvedOrder.productPrice,
+        handoverUrl: resolvedOrder.handoverUrl,
+        downloadUrl: resolvedOrder.downloadUrl,
+        handoverNotes: resolvedOrder.handoverNotes,
+        deliveredAt: resolvedOrder.deliveredAt
+      } : null,
+      productTitle: resolvedOrder?.productTitle || product?.title || 'Mẫu Website KWeb',
+      handoverUrl: resolvedOrder?.handoverUrl || resolvedLic?.handoverUrl || '',
+      handoverNotes: resolvedOrder?.handoverNotes || resolvedLic?.handoverNotes || '',
+      downloadFileName: product?.downloadFileName || 'source-code.zip',
+      remainingDownloads: Math.max(0, (resolvedLic.maxDownloads || 10) - (resolvedLic.downloadCount || 0)),
+      downloadUrl: isPaid ? (resolvedOrder?.downloadUrl || `/api/download/${resolvedLic.key}`) : null
     }
   });
 });
@@ -1047,6 +1678,41 @@ checkSupabaseStatus().then((status) => {
     console.log('ℹ️ [Supabase Cloud] Đang dùng chế độ offline/local database.');
   }
 }).catch(() => {});
+
+// Continuous Automatic Background Sync with Supabase Cloud (Every 5 seconds)
+setInterval(async () => {
+  try {
+    const status = await checkSupabaseStatus();
+    if (status.connected && status.tablesReady) {
+      // 1. Sync any new orders placed from website via Supabase
+      const supaOrders = await getOrdersFromSupabase();
+      if (supaOrders && supaOrders.length > 0) {
+        let changed = false;
+        const localMap = new Map((db.orders || []).map(o => [o.orderCode, o]));
+        for (const so of supaOrders) {
+          if (!localMap.has(so.orderCode)) {
+            db.orders.unshift(so);
+            changed = true;
+          }
+        }
+        if (changed) saveDatabase(db);
+      }
+
+      // 2. Sync products if local has products not yet on Supabase
+      if (db.products && db.products.length > 0) {
+        const supaProducts = await getProductsFromSupabase();
+        if (supaProducts) {
+          const supaIds = new Set(supaProducts.map(p => p.id));
+          for (const lp of db.products) {
+            if (!supaIds.has(lp.id)) {
+              await saveProductToSupabase(lp);
+            }
+          }
+        }
+      }
+    }
+  } catch (_) {}
+}, 5000);
 
 // Start Server with EADDRINUSE auto-handling
 const server = app.listen(PORT, () => {

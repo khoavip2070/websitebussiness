@@ -4,17 +4,18 @@ dist
 build
 *.log
 .DS_Store
-data/electron-profile
 __pycache__
 *.pyc
 .env
 .env.local
 .env.*
 
-# Desktop Software (Giữ lại trên máy tính cá nhân, không đẩy lên Git/Vercel)
+# Local data & downloads
+data/electron-profile/
+data/downloads/*.zip
+
+# Desktop Software & Executables (Giữ lại trên máy tính cá nhân, không đẩy lên Git/Vercel)
 apps/desktop/
-apps/desktop-python/
-chay-phan-mem-desktop.bat
-tat-he-thong.bat
-start.bat
+*.exe
+*.bat
 docs/
